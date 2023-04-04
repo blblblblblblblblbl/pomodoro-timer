@@ -2,14 +2,12 @@ package blblblbl.simplelife.timer.data.persistent_storage
 
 import blblblbl.simplelife.timer.data.model.Config
 
-interface PersistentStorage {
+interface ConfigurationPersistentStorage {
     fun addProperty(key: String?, value: String?)
 
     fun clear()
 
     fun getProperty(key: String?): String?
-
-    fun addConfig(config: Config)
 
     fun getConfig(): Config?
 

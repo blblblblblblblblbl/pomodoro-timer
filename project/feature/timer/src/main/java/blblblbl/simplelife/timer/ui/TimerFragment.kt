@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.os.CountDownTimer
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -16,48 +17,54 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.work.*
+import blblblbl.simplelife.timer.domain.model.TimerState
 import blblblbl.simplelife.timer.presentation.TimerFragmentViewModel
 
 @Composable
 fun TimerFragment() {
     val viewModel: TimerFragmentViewModel = hiltViewModel()
-    val context = LocalContext.current
-    var time:Long by remember { mutableStateOf(0) }
-    val timerReceiver = object : BroadcastReceiver(){
-        override fun onReceive(context: Context?, intent: Intent?) {
-            time = intent?.getLongExtra(TimerWorker.TIME_KEY,0)?:0
-        }
-    }
-    context.registerReceiver(timerReceiver, IntentFilter(TimerWorker.TIMER_UPDATE))
+    viewModel.initial()
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
         )
     {
+        val time by viewModel.time.collectAsState()
+        val state by viewModel.timerState.collectAsState()
+        val stage by viewModel.timerStage.collectAsState()
+        Text(text = stage.toString())
         Text(text = time.toString())
-        Button(onClick = {
-            val timerWorkRequest: WorkRequest = OneTimeWorkRequestBuilder<TimerWorker>()
-                .setInputData(
-                    Data.Builder().build()
-                )
-                //.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .build()
-            WorkManager.getInstance(context).enqueue(timerWorkRequest)
-            /*val timer = object: CountDownTimer(30000,1000){
-                override fun onTick(millisUntilFinished: Long) {
-                    val intent = Intent(TimerWorker.TIMER_UPDATE)
-                    val secs = millisUntilFinished/1000
-                    intent.putExtra(TimerWorker.TIME_KEY,secs)
-                    context.sendBroadcast(intent)
-                }
-                override fun onFinish() {
-                    //timerNotifications.finish()
-                }
-            }.start()*/
-        }) {
-            Text(text = "start")
+        if (state==TimerState.STOP){
+            Button(onClick = {
+                viewModel.startTimer()
+            }) {
+                Text(text = "start")
+            }
         }
+        else if (state==TimerState.PAUSE){
+            Row() {
+                Button(onClick = {
+                    viewModel.resumeTimer()
+                }) {
+                    Text(text = "resume")
+                }
+                Button(onClick = {
+                    viewModel.stopTimer()
+                }) {
+                    Text(text = "stop")
+                }
+            }
+
+        }
+        else if (state==TimerState.COUNTING){
+            Button(onClick = {
+                viewModel.pauseTimer()
+            }) {
+                Text(text = "pause")
+            }
+        }
+
     }
 
 }
