@@ -56,6 +56,9 @@ dependencies {
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
+    //implementation project(path: ':feature:configuration')
+    implementation project(path: ':feature:timer')
+
     //mvvm
     implementation("androidx.activity:activity-ktx:1.7.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
@@ -111,6 +114,7 @@ dependencies {
     // WorkManager dependency
     implementation "androidx.work:work-runtime-ktx:2.8.1"
     implementation "com.google.accompanist:accompanist-permissions:0.28.0"
+    //
     //LeakCanary
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
     //
