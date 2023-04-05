@@ -16,20 +16,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.work.*
 import blblblbl.simplelife.timer.domain.model.TimerState
 import blblblbl.simplelife.timer.presentation.TimerFragmentViewModel
+import blblblbl.simplelife.timer.ui.alarm.AlarmItem
+import blblblbl.simplelife.timer.ui.alarm.AndroidAlarmScheduler
+import java.time.LocalDateTime
+import java.util.*
 
 @Composable
 fun TimerFragment() {
     val viewModel: TimerFragmentViewModel = hiltViewModel()
-    viewModel.initial()
+    val context = LocalContext.current
+    val alarm = AndroidAlarmScheduler(context)
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
         )
     {
+
         val time by viewModel.time.collectAsState()
         val state by viewModel.timerState.collectAsState()
         val stage by viewModel.timerStage.collectAsState()
@@ -38,6 +45,7 @@ fun TimerFragment() {
         if (state==TimerState.STOP){
             Button(onClick = {
                 viewModel.startTimer()
+                alarm.schedule(AlarmItem(LocalDateTime.now().plusSeconds(5),"timer"))
             }) {
                 Text(text = "start")
             }
@@ -51,6 +59,7 @@ fun TimerFragment() {
                 }
                 Button(onClick = {
                     viewModel.stopTimer()
+
                 }) {
                     Text(text = "stop")
                 }
@@ -60,6 +69,7 @@ fun TimerFragment() {
         else if (state==TimerState.COUNTING){
             Button(onClick = {
                 viewModel.pauseTimer()
+                alarm.cancel()
             }) {
                 Text(text = "pause")
             }

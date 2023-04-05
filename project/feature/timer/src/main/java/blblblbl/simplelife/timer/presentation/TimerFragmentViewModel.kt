@@ -1,5 +1,6 @@
 package blblblbl.simplelife.timer.presentation
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import blblblbl.simplelife.timer.domain.model.Config
@@ -45,7 +46,8 @@ class TimerFragmentViewModel @Inject constructor(
     fun getTimerStage(){
         _timerStage.value = timerActionsUseCase.getTimerStage()
     }
-    fun initial(){
+    init {
+        Log.d("MyLog","initial")
         getTimerState()
         getTimerStage()
         getTime()
@@ -55,10 +57,10 @@ class TimerFragmentViewModel @Inject constructor(
                     _time.value = (timerActionsUseCase.getTimeRemaining()/1000).toInt()
                     delay(1000)
                 }
-
             }
         }
     }
+
     fun setTimerStage(timerStage: TimerStage){
         _timerStage.value = timerStage
         timerActionsUseCase.setTimerStage(timerStage)
@@ -66,6 +68,7 @@ class TimerFragmentViewModel @Inject constructor(
 
     fun startTimer(){
         timerActionsUseCase.startTimer(30*1000)
+
         getTimerState()
         timeJob = viewModelScope.launch {
             while (true){
@@ -87,8 +90,8 @@ class TimerFragmentViewModel @Inject constructor(
         }
     }
     fun stopTimer(){
-        timerActionsUseCase.stopTimer()
         timeJob?.cancel()
+        timerActionsUseCase.stopTimer()
         getTimerState()
     }
     fun pauseTimer(){

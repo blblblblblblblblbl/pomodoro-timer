@@ -16,6 +16,7 @@ class TimerActionsUseCase @Inject constructor(
 
     fun setTimerStage(timerStage: TimerStage) = timerRepository.setTimerStage(timerStage)
 
+
     fun startTimer(timeTask:Long){
         val startTime = Date(System.currentTimeMillis())
         val stopTime = Date(System.currentTimeMillis()+timeTask)
