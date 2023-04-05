@@ -1,12 +1,14 @@
 package blblblbl.simplelife.timer.ui.alarm
 
 import android.Manifest
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -30,9 +32,11 @@ class AlarmReceiver: BroadcastReceiver() {
         // Create the notification
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(androidx.core.R.drawable.ic_call_answer)
+            .setSound(Uri.parse("android.resource://"+context.packageName +"/raw/ringtone"))
             .setContentTitle(NOTIFICATION_TITLE)
             .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setVibrate(LongArray(0))
 
         // Show the notification
@@ -60,7 +64,12 @@ class AlarmReceiver: BroadcastReceiver() {
             val name = VERBOSE_NOTIFICATION_CHANNEL_NAME
             val description = VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION
             val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(CHANNEL_ID, name, importance)
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                setSound(
+                    Uri.parse("android.resource://"+context.packageName +"/raw/ringtone"),
+                    Notification.AUDIO_ATTRIBUTES_DEFAULT
+                )
+            }
             channel.description = description
 
             // Add the channel
@@ -70,8 +79,8 @@ class AlarmReceiver: BroadcastReceiver() {
         }
     }
 }
-@JvmField val VERBOSE_NOTIFICATION_CHANNEL_NAME: CharSequence = "Verbose WorkManager Notifications"
+@JvmField val VERBOSE_NOTIFICATION_CHANNEL_NAME: CharSequence = "Verbose WorkManager Notificationsa"
 const val VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION = "Shows notifications whenever work starts"
 @JvmField val NOTIFICATION_TITLE: CharSequence = "DownloadWorkRequest"
-const val CHANNEL_ID = "VERBOSE_NOTIFICATION"
+const val CHANNEL_ID = "VERBOSE_NOTIFICATIONAA"
 const val NOTIFICATION_ID = 1
