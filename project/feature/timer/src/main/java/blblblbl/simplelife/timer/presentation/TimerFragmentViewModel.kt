@@ -30,7 +30,7 @@ class TimerFragmentViewModel @Inject constructor(
     private val _timerStage = MutableStateFlow<TimerStage?>(null)
     val timerStage = _timerStage.asStateFlow()
 
-    private val _time = MutableStateFlow<Int?>(null)
+    private val _time = MutableStateFlow<Long?>(null)
     val time = _time.asStateFlow()
     var timeJob:Job? = null
 
@@ -54,7 +54,7 @@ class TimerFragmentViewModel @Inject constructor(
         if (_timerState.value==TimerState.COUNTING){
             timeJob = viewModelScope.launch {
                 while (true){
-                    _time.value = (timerActionsUseCase.getTimeRemaining()/1000).toInt()
+                    _time.value = (timerActionsUseCase.getTimeRemaining())
                     delay(1000)
                 }
             }
@@ -72,7 +72,7 @@ class TimerFragmentViewModel @Inject constructor(
         getTimerState()
         timeJob = viewModelScope.launch {
             while (true){
-                _time.value = (timerActionsUseCase.getTimeRemaining()/1000).toInt()
+                _time.value = (timerActionsUseCase.getTimeRemaining())
                 delay(1000)
             }
         }
@@ -86,7 +86,7 @@ class TimerFragmentViewModel @Inject constructor(
 
         }
         else if (_timerState.value==TimerState.COUNTING){
-            _time.value = (timerActionsUseCase.getTimeRemaining()/1000).toInt()
+            _time.value = (timerActionsUseCase.getTimeRemaining())
         }
     }
     fun stopTimer(){
@@ -103,7 +103,7 @@ class TimerFragmentViewModel @Inject constructor(
         timerActionsUseCase.resumeTimer()
         timeJob = viewModelScope.launch {
             while (true){
-                _time.value = (timerActionsUseCase.getTimeRemaining()/1000).toInt()
+                _time.value = (timerActionsUseCase.getTimeRemaining())
                 delay(1000)
             }
         }
