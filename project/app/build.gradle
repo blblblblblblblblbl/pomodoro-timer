@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "blblblbl.simplelife.pomodorotimer"
-        minSdk 21
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -55,6 +55,9 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    //implementation project(path: ':feature:configuration')
+    implementation project(path: ':feature:timer')
 
     //mvvm
     implementation("androidx.activity:activity-ktx:1.7.0")
@@ -111,6 +114,7 @@ dependencies {
     // WorkManager dependency
     implementation "androidx.work:work-runtime-ktx:2.8.1"
     implementation "com.google.accompanist:accompanist-permissions:0.28.0"
+    //
     //LeakCanary
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
     //
