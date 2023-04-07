@@ -1,6 +1,5 @@
-package blblblbl.simplelife.timer.data.persistent_storage.utils
+package blblblbl.simplelife.configtimer.data.persistent_storage.utils
 
-import blblblbl.simplelife.timer.data.di.TimerFeature
 import com.google.gson.Gson
 import java.lang.reflect.Type
 import javax.inject.Inject

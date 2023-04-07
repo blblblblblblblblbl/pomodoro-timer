@@ -11,9 +11,10 @@ import java.util.*
 import javax.inject.Inject
 
 class TimerPersistentStorageImpl @Inject constructor(
-    @ApplicationContext context: Context
+    @ApplicationContext context: Context,
+    private val sharedPref:SharedPreferences
 ):TimerPersistentStorage {
-    private var sharedPref : SharedPreferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
+    //private var sharedPref : SharedPreferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
     private var dateFormat = SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.getDefault())
 
     private var timerCounting = false

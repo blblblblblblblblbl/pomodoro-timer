@@ -1,5 +1,6 @@
 package blblblbl.simplelife.timer.data.persistent_storage.di
 
+import blblblbl.simplelife.timer.data.di.TimerFeature
 import blblblbl.simplelife.timer.data.persistent_storage.utils.GsonParser
 import blblblbl.simplelife.timer.data.persistent_storage.utils.JsonParser
 import com.google.gson.Gson
@@ -8,6 +9,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Named
 
 
 @Module
@@ -15,12 +17,14 @@ import dagger.hilt.components.SingletonComponent
 class StorageConverterModule {
 
     @Provides
+    @TimerFeature
     fun provideGson(): Gson {
         val gson = GsonBuilder().setLenient().create()
         return gson
     }
 
     @Provides
-    fun provideJsonParser(gson:Gson): JsonParser = GsonParser(gson)
+    @TimerFeature
+    fun provideJsonParser(@TimerFeature gson:Gson): JsonParser = GsonParser(gson)
 
 }

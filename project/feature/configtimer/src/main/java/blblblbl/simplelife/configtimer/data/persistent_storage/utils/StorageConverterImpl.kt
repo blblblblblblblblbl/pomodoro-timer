@@ -1,15 +1,14 @@
-package blblblbl.simplelife.timer.data.persistent_storage.utils
+package blblblbl.simplelife.configtimer.data.persistent_storage.utils
 
 
-import blblblbl.simplelife.timer.data.di.TimerFeature
-import blblblbl.simplelife.timer.data.model.Config
+import blblblbl.simplelife.configtimer.data.di.ConfigFeature
+import blblblbl.simplelife.configtimer.data.model.Config
 import javax.inject.Inject
 
 class StorageConverterImpl @Inject constructor(
-
 ) : StorageConverter {
-    @TimerFeature
     @Inject
+    @ConfigFeature
     lateinit var jsonParser: JsonParser
     override fun configToJson(config: Config): String? {
         return jsonParser.toJson(

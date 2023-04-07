@@ -8,6 +8,8 @@ import android.os.CountDownTimer
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,7 +28,9 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Composable
-fun TimerFragment() {
+fun TimerFragment(
+    onSettingsClicked: ()->Unit
+) {
     val viewModel: TimerFragmentViewModel = hiltViewModel()
     val context = LocalContext.current
     val alarm = AndroidAlarmScheduler(context)
@@ -68,6 +72,9 @@ fun TimerFragment() {
                 alarm.schedule(AlarmItem(LocalDateTime.now().plusSeconds(5),"timer"))
             }) {
                 Text(text = "start")
+            }
+            IconButton(onClick = { onSettingsClicked() }) {
+                Icon(Icons.Default.Settings, contentDescription = "settings button")
             }
         }
         else if (state==TimerState.PAUSE){
