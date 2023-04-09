@@ -24,6 +24,7 @@ class TimerPersistentStorageImpl @Inject constructor(
     private var pauseTime:Date? = null
     private var timerState:TimerState? = null
     private var timerStage: TimerStage? = null
+    private var progress:Int? = null
 
     init
     {
@@ -50,6 +51,7 @@ class TimerPersistentStorageImpl @Inject constructor(
         timerStage = if (timerStagePref != null)
             TimerStage.valueOf(timerStagePref)
         else TimerStage.WORK
+        progress = sharedPref.getInt(PROGRESS_KEY,0)
     }
 
 
@@ -137,6 +139,17 @@ class TimerPersistentStorageImpl @Inject constructor(
         }
     }
 
+    override fun getProgress(): Int? = progress
+
+    override fun setProgress(progress: Int) {
+        this.progress = progress
+        with(sharedPref.edit())
+        {
+            putInt(PROGRESS_KEY,progress)
+            apply()
+        }
+    }
+
     companion object
     {
         const val PREFERENCES = "prefs"
@@ -146,5 +159,6 @@ class TimerPersistentStorageImpl @Inject constructor(
         const val COUNTING_KEY = "countingKey"
         const val STATE_KEY = "timerstatekey"
         const val STAGE_KEY = "timerstagekey"
+        const val PROGRESS_KEY = "progresskey"
     }
 }

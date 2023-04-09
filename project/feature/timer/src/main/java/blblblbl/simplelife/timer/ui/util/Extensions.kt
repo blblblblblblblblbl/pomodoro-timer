@@ -3,6 +3,7 @@ package blblblbl.simplelife.timer.ui.util
 import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
+import kotlin.math.ceil
 
 fun String.fillWithZeros() = this.padStart(MAX_LENGTH_TIMER, ZERO_STRING.first())
 fun String.removeLast() = if (isNotEmpty()) this.take(this.length - 1) else this
@@ -32,7 +33,7 @@ fun String.removeExtraColon(): String =
 fun Long.toHhMmSs(): String {
     val hours = ((this / (1000 * 60 * 60) % 24)).toInt().toStringOrEmpty()
     val minutes = ((this / (1000 * 60) % 60)).toInt().minuteToString(hours.isNotEmpty())
-    val seconds = ((this / 1000) % 60).toInt().secondToString(minutes.isNotEmpty())
+    val seconds = ceil(((this.toDouble() / 1000) % 60)).toInt().secondToString(minutes.isNotEmpty())
     var formattedTime = "$hours$COLON$minutes$COLON$seconds"
     while (formattedTime.isNotEmpty() && formattedTime.first().toString() == COLON) {
         formattedTime = formattedTime.removeExtraColon()

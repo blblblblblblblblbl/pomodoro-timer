@@ -63,6 +63,7 @@ class TimerFragmentViewModel @Inject constructor(
         getTimerState()
         getTimerStage()
         getTime()
+        _progress.value = timerActionsUseCase.getProgress()
         if (_timerState.value==TimerState.COUNTING){
             timeJob = viewModelScope.launch {
                 while (true){
@@ -76,6 +77,27 @@ class TimerFragmentViewModel @Inject constructor(
     fun setTimerStage(timerStage: TimerStage){
         _timerStage.value = timerStage
         timerActionsUseCase.setTimerStage(timerStage)
+    }
+    fun goToNextStage(){
+        if(_timerStage.value==TimerStage.WORK){
+            timerActionsUseCase.setTimerStage(TimerStage.RELAX)
+            _timerStage.value = TimerStage.RELAX
+            _timeTask.value = (_timerConfiguration.value?.relaxTime?.times(1000))?.toLong()
+            if (_progress.value!=null){
+                _progress.value = _progress.value!!+1
+                val curProgress = timerActionsUseCase.getProgress()
+                curProgress?.let { curProgress->
+                    timerActionsUseCase.setProgress(curProgress+1)
+                }
+            }
+
+        }
+        else{
+            timerActionsUseCase.setTimerStage(TimerStage.WORK)
+            _timerStage.value = TimerStage.WORK
+            _timeTask.value = (_timerConfiguration.value?.workTime?.times(1000))?.toLong()
+        }
+        stopTimer()
     }
 
     fun startTimer(){
@@ -121,5 +143,9 @@ class TimerFragmentViewModel @Inject constructor(
             }
         }
         getTimerState()
+    }
+    fun resetProgress(){
+        timerActionsUseCase.setProgress(0)
+        _progress.value = 0
     }
 }

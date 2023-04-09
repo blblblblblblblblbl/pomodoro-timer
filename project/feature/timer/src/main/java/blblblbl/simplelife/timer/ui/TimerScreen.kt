@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,7 +35,9 @@ import blblblbl.simplelife.timer.domain.model.TimerStage
 import blblblbl.simplelife.timer.domain.model.TimerState
 import blblblbl.simplelife.timer.ui.alarm.AlarmItem
 import blblblbl.simplelife.timer.ui.util.toHhMmSs
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.time.LocalDateTime
 import kotlin.math.cos
 import kotlin.math.sin
@@ -45,16 +48,21 @@ fun TimerScreen(
     stateFlow: StateFlow<TimerState?>,
     stageFlow: StateFlow<TimerStage?>,
     timeTaskFlow: StateFlow<Long?>,
+    goalFlow: StateFlow<Int?>,
+    progressFlow: StateFlow<Int?>,
     startOnCLick:()->Unit,
     stopOnCLick:()->Unit,
     pauseOnCLick:()->Unit,
     resumeOnCLick:()->Unit,
-    settingsOnClick:()->Unit
+    settingsOnClick:()->Unit,
+    nextStageOnCLick:()->Unit,
+    resetProgressOnclick:()->Unit,
+    menuOnclick:()->Unit
 ){
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.SpaceAround,
     )
     {
 
@@ -62,36 +70,56 @@ fun TimerScreen(
         val timeTask by timeTaskFlow.collectAsState()
         val state by stateFlow.collectAsState()
         val stage by stageFlow.collectAsState()
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ){
+                Box(modifier = Modifier.fillMaxWidth()){
+                    IconButton(onClick = {menuOnclick()}, modifier = Modifier.align(Alignment.CenterEnd)) {
+                        Icon(Icons.Default.Menu, contentDescription = "menu button",modifier = Modifier.size(48.dp))
+                    }
+                }
+                val progress = ((time?:0).toFloat() / ((timeTask?:1).toFloat())).coerceAtLeast(0f)+1
+                val progressOffset = (1 - progress)
+                val animatedProgress by animateFloatAsState(
+                    targetValue = progressOffset,
+                    animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+                )
+                MainTimer(
+                    animatedProgress = animatedProgress,
+                    timerVisibility = true,
+                    timerScreenState = state!!,
+                    modifier = Modifier.size(200.dp),
+                    formattedTime ="",
+                    onOptionTimerClick = {}
+                )
+                {
+                    Text(text = time?.toHhMmSs().toString(), style = MaterialTheme.typography.headlineLarge)
+                }
+                if (state==TimerState.STOP){
+                    Box(modifier = Modifier.fillMaxWidth()){
+                        IconButton(onClick = { settingsOnClick() }, modifier = Modifier.align(Alignment.CenterEnd)) {
+                            Icon(Icons.Default.Settings, contentDescription = "settings button",Modifier.size(48.dp))
+                        }
+                    }
 
-
-        val progress = ((time?:0).toFloat() / ((timeTask?:1).toFloat())).coerceAtLeast(0f)
-        val progressOffset = (1 - progress)
-        val animatedProgress by animateFloatAsState(
-            targetValue = progressOffset,
-            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-        )
-        MainTimer(
-            animatedProgress = animatedProgress,
-            timerVisibility = true,
-            timerScreenState = state!!,
-            modifier = Modifier.size(200.dp),
-            formattedTime ="",
-            onOptionTimerClick = {}
-        )
-        {
-            Text(text = time?.toHhMmSs().toString(), style = MaterialTheme.typography.headlineLarge)
+                }
+            }
         }
         Card(shape = CircleShape) {
-            Text(text = stage.toString(), modifier = Modifier.padding(10.dp))
+            Text(text = stage.toString(), modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp), style = MaterialTheme.typography.headlineLarge)
         }
+        GoalAndProgress(
+            goalFlow = goalFlow,
+            progressFlow = progressFlow,
+            showResetButton = state==TimerState.STOP,
+            resetOnClick = resetProgressOnclick)
         if (state==TimerState.STOP){
             Button(onClick = {
                 startOnCLick()
             }) {
-                Text(text = "start")
-            }
-            IconButton(onClick = { settingsOnClick() }) {
-                Icon(Icons.Default.Settings, contentDescription = "settings button")
+                Text(text = "start", style = MaterialTheme.typography.headlineLarge)
             }
         }
         else if (state==TimerState.PAUSE){
@@ -99,23 +127,34 @@ fun TimerScreen(
                 Button(onClick = {
                     resumeOnCLick()
                 }) {
-                    Text(text = "resume")
+                    Text(text = "resume", style = MaterialTheme.typography.headlineLarge)
                 }
                 Button(onClick = {
                     stopOnCLick()
-
                 }) {
-                    Text(text = "stop")
+                    Text(text = "stop", style = MaterialTheme.typography.headlineLarge)
                 }
             }
 
         }
         else if (state==TimerState.COUNTING){
-            Button(onClick = {
-                pauseOnCLick()
-            }) {
-                Text(text = "pause")
+            time?.let { time->
+                if(time<0){
+                    Button(onClick = {
+                        nextStageOnCLick()
+                    }) {
+                        Text(text = "next stage", style = MaterialTheme.typography.headlineLarge)
+                    }
+                }
+                else{
+                    Button(onClick = {
+                        pauseOnCLick()
+                    }) {
+                        Text(text = "pause", style = MaterialTheme.typography.headlineLarge)
+                    }
+                }
             }
+
         }
 
     }
@@ -233,5 +272,51 @@ fun DrawScope.drawArcIndicator(
         topLeft = Offset(diameterOffset, diameterOffset),
         size = Size(arcDimen, arcDimen),
         style = stroke
+    )
+}
+
+@Composable
+fun GoalAndProgress(
+    goalFlow: StateFlow<Int?>,
+    progressFlow: StateFlow<Int?>,
+    showResetButton:Boolean,
+    resetOnClick:()->Unit
+){
+    val goal by goalFlow.collectAsState()
+    val progress by progressFlow.collectAsState()
+    Column() {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+            Column() {
+                Text(text = "goal:$goal", style = MaterialTheme.typography.headlineLarge)
+                Text(text = "progress:$progress/$goal", style = MaterialTheme.typography.headlineLarge)
+            }
+            if (showResetButton){
+                IconButton(onClick = { resetOnClick() }) {
+                    Icon(Icons.Default.Refresh, contentDescription = "reset progress button",Modifier.size(48.dp))
+                }
+            }
+        }
+    }
+}
+@Preview
+@Composable
+fun ResetIconPreview(){
+    Icon(Icons.Default.Refresh, contentDescription = "reset progress button")
+}
+@Preview
+@Composable
+fun GoalAndProgressPreview(){
+    val _goal = MutableStateFlow<Int?>(null)
+    val goal = _goal.asStateFlow()
+    _goal.value = 5
+    val _progress = MutableStateFlow<Int?>(null)
+    val progress = _progress.asStateFlow()
+    _progress.value = 5
+    val showResetButton = true
+    GoalAndProgress(
+        goalFlow = goal,
+        progressFlow = progress,
+        showResetButton = true,
+        resetOnClick = {}
     )
 }

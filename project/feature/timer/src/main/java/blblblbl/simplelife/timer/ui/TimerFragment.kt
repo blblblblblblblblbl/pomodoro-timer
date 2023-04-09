@@ -30,40 +30,49 @@ import java.util.*
 
 @Composable
 fun TimerFragment(
-    onSettingsClicked: ()->Unit
+    onSettingsClicked: ()->Unit,
+    menuOnClick: ()->Unit
 ) {
     val viewModel: TimerFragmentViewModel = hiltViewModel()
     viewModel.getConfig()
     val config by viewModel.timerConfiguration.collectAsState()
     val context = LocalContext.current
     val alarm = AndroidAlarmScheduler(context)
-    TimerScreen(
-        timeFlow = viewModel.time,
-        stateFlow = viewModel.timerState,
-        stageFlow = viewModel.timerStage,
-    timeTaskFlow = viewModel.timeTask,
-        startOnCLick =
-        {
-            if (config==null){
-                Toast.makeText(context,"first configure timer, tap on configure button",Toast.LENGTH_SHORT).show()
-            }
-            else{
-                viewModel.timeTask.value?.let {
-                    viewModel.startTimer()
-                    alarm.schedule(AlarmItem(LocalDateTime.now().plusSeconds(it/1000),"timer"))
+    Box(modifier = Modifier.padding(24.dp)) {
+        TimerScreen(
+            timeFlow = viewModel.time,
+            stateFlow = viewModel.timerState,
+            stageFlow = viewModel.timerStage,
+            timeTaskFlow = viewModel.timeTask,
+            goalFlow = viewModel.goal,
+            progressFlow = viewModel.progress,
+            startOnCLick =
+            {
+                if (config==null){
+                    Toast.makeText(context,"first configure timer, tap on configure button",Toast.LENGTH_SHORT).show()
                 }
+                else{
+                    viewModel.timeTask.value?.let {
+                        viewModel.startTimer()
+                        alarm.schedule(AlarmItem(LocalDateTime.now().plusSeconds(it/1000),"timer"))
+                    }
 
-            }
-        },
-        stopOnCLick = { viewModel.stopTimer()},
-        pauseOnCLick =
-        {
-            viewModel.pauseTimer()
-            alarm.cancel()
-        },
-        resumeOnCLick = { viewModel.resumeTimer() },
-        settingsOnClick = {onSettingsClicked()}
-    )
+                }
+            },
+            stopOnCLick = { viewModel.stopTimer()},
+            pauseOnCLick =
+            {
+                viewModel.pauseTimer()
+                alarm.cancel()
+            },
+            resumeOnCLick = { viewModel.resumeTimer() },
+            settingsOnClick = {onSettingsClicked()},
+            nextStageOnCLick = {viewModel.goToNextStage()},
+            resetProgressOnclick = {viewModel.resetProgress()},
+            menuOnclick = menuOnClick
+        )
+    }
+
 
 
 }

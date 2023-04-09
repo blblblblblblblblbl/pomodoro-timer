@@ -65,7 +65,8 @@ fun AppNavHost(
         composable(route = TimerDest.route) {
             TimerFragment(onSettingsClicked = {
                 navController.navigateSingleTopTo(ConfigTimerDest.route)
-            })
+            },
+            menuOnClick = {})
         }
         composable(route = ConfigTimerDest.route) {
             ConfigurationFragment()

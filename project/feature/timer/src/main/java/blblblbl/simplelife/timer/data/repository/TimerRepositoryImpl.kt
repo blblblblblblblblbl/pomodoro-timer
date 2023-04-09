@@ -47,7 +47,9 @@ class TimerRepositoryImpl @Inject constructor(
     override fun timerStage(): TimerStage? = timerPersistentStorage.timerStage()
 
     override fun setTimerStage(timerStage: TimerStage?) = timerPersistentStorage.setTimerStage(timerStage)
+    override fun getProgress(): Int? = timerPersistentStorage.getProgress()
 
+    override fun setProgress(progress: Int) = timerPersistentStorage.setProgress(progress)
 
 
 }
