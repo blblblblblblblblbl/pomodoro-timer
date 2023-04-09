@@ -13,6 +13,6 @@ class ConfigurationRepositoryImpl @Inject constructor(
     override suspend fun saveConfiguration(config: Config) =
         persistentStorage.addConfig(config.mapToData())
 
-    override suspend fun getConfiguration(): Config =
-        persistentStorage.getConfig()?.mapToDomain()?: Config(null,null,null)
+    override suspend fun getConfiguration(): Config? =
+        persistentStorage.getConfig()?.mapToDomain()
 }

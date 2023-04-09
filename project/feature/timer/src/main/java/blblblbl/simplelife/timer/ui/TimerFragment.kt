@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.CountDownTimer
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -32,76 +33,37 @@ fun TimerFragment(
     onSettingsClicked: ()->Unit
 ) {
     val viewModel: TimerFragmentViewModel = hiltViewModel()
+    viewModel.getConfig()
+    val config by viewModel.timerConfiguration.collectAsState()
     val context = LocalContext.current
     val alarm = AndroidAlarmScheduler(context)
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-        )
-    {
-
-        val time by viewModel.time.collectAsState()
-        val state by viewModel.timerState.collectAsState()
-        val stage by viewModel.timerStage.collectAsState()
-
-
-        val progress = ((time?:0).toFloat() / (30000.toFloat())).coerceAtLeast(0f)
-        val progressOffset = (1 - progress)
-        val animatedProgress by animateFloatAsState(
-            targetValue = progressOffset,
-            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-        )
-        MainTimer(
-            animatedProgress = animatedProgress,
-            timerVisibility = true,
-            timerScreenState = state!!,
-            modifier = Modifier.size(200.dp),
-            formattedTime ="",
-            onOptionTimerClick = {}
-        )
+    TimerScreen(
+        timeFlow = viewModel.time,
+        stateFlow = viewModel.timerState,
+        stageFlow = viewModel.timerStage,
+    timeTaskFlow = viewModel.timeTask,
+        startOnCLick =
         {
-            Text(text = time?.toHhMmSs().toString(), style = MaterialTheme.typography.headlineLarge)
-        }
-        Card(shape = CircleShape) {
-            Text(text = stage.toString(), modifier = Modifier.padding(10.dp))
-        }
-        if (state==TimerState.STOP){
-            Button(onClick = {
-                viewModel.startTimer()
-                alarm.schedule(AlarmItem(LocalDateTime.now().plusSeconds(5),"timer"))
-            }) {
-                Text(text = "start")
+            if (config==null){
+                Toast.makeText(context,"first configure timer, tap on configure button",Toast.LENGTH_SHORT).show()
             }
-            IconButton(onClick = { onSettingsClicked() }) {
-                Icon(Icons.Default.Settings, contentDescription = "settings button")
-            }
-        }
-        else if (state==TimerState.PAUSE){
-            Row() {
-                Button(onClick = {
-                    viewModel.resumeTimer()
-                }) {
-                    Text(text = "resume")
+            else{
+                viewModel.timeTask.value?.let {
+                    viewModel.startTimer()
+                    alarm.schedule(AlarmItem(LocalDateTime.now().plusSeconds(it/1000),"timer"))
                 }
-                Button(onClick = {
-                    viewModel.stopTimer()
 
-                }) {
-                    Text(text = "stop")
-                }
             }
+        },
+        stopOnCLick = { viewModel.stopTimer()},
+        pauseOnCLick =
+        {
+            viewModel.pauseTimer()
+            alarm.cancel()
+        },
+        resumeOnCLick = { viewModel.resumeTimer() },
+        settingsOnClick = {onSettingsClicked()}
+    )
 
-        }
-        else if (state==TimerState.COUNTING){
-            Button(onClick = {
-                viewModel.pauseTimer()
-                alarm.cancel()
-            }) {
-                Text(text = "pause")
-            }
-        }
-
-    }
 
 }

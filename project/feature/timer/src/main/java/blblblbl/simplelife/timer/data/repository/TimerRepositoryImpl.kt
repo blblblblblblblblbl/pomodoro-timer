@@ -17,8 +17,8 @@ class TimerRepositoryImpl @Inject constructor(
     private val timerPersistentStorage: TimerPersistentStorage
 ): TimerRepository {
 
-    override suspend fun getConfiguration(): Config =
-        persistentStorage.getConfig()?.mapToDomain()?: Config(null,null,null)
+    override suspend fun getConfiguration(): Config? =
+        persistentStorage.getConfig()?.mapToDomain()
 
     override fun startTime(): Date? = timerPersistentStorage.startTime()
 

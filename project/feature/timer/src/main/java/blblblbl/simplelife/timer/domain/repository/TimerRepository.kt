@@ -6,7 +6,7 @@ import blblblbl.simplelife.timer.domain.model.TimerState
 import java.util.*
 
 interface TimerRepository {
-    suspend fun getConfiguration(): Config
+    suspend fun getConfiguration(): Config?
     fun startTime(): Date?
 
     fun setStartTime(date: Date?)

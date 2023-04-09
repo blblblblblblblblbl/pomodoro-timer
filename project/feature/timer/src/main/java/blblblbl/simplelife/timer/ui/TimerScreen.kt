@@ -7,14 +7,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.progressSemantics
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProgressIndicatorDefaults
-import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,29 +30,95 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import blblblbl.simplelife.timer.domain.model.TimerStage
 import blblblbl.simplelife.timer.domain.model.TimerState
+import blblblbl.simplelife.timer.ui.alarm.AlarmItem
+import blblblbl.simplelife.timer.ui.util.toHhMmSs
+import kotlinx.coroutines.flow.StateFlow
+import java.time.LocalDateTime
 import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
-fun TimerScreen(){
-    /*val current :Int = 0
-    val time :Int = 30
-    val progress = (current.toFloat() / time.toFloat()).coerceAtLeast(0f)
-    val progressOffset = (1 - progress)
-    val animatedProgress by animateFloatAsState(
-        targetValue = progressOffset,
-        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+fun TimerScreen(
+    timeFlow: StateFlow<Long?>,
+    stateFlow: StateFlow<TimerState?>,
+    stageFlow: StateFlow<TimerStage?>,
+    timeTaskFlow: StateFlow<Long?>,
+    startOnCLick:()->Unit,
+    stopOnCLick:()->Unit,
+    pauseOnCLick:()->Unit,
+    resumeOnCLick:()->Unit,
+    settingsOnClick:()->Unit
+){
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     )
-    MainTimer(
-        animatedProgress = animatedProgress,
-        timerVisibility = true,
-        timerScreenState = ,
-        modifier = ,
-        formattedTime =
-    ) {
+    {
 
-    }*/
+        val time by timeFlow.collectAsState()
+        val timeTask by timeTaskFlow.collectAsState()
+        val state by stateFlow.collectAsState()
+        val stage by stageFlow.collectAsState()
+
+
+        val progress = ((time?:0).toFloat() / ((timeTask?:1).toFloat())).coerceAtLeast(0f)
+        val progressOffset = (1 - progress)
+        val animatedProgress by animateFloatAsState(
+            targetValue = progressOffset,
+            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+        )
+        MainTimer(
+            animatedProgress = animatedProgress,
+            timerVisibility = true,
+            timerScreenState = state!!,
+            modifier = Modifier.size(200.dp),
+            formattedTime ="",
+            onOptionTimerClick = {}
+        )
+        {
+            Text(text = time?.toHhMmSs().toString(), style = MaterialTheme.typography.headlineLarge)
+        }
+        Card(shape = CircleShape) {
+            Text(text = stage.toString(), modifier = Modifier.padding(10.dp))
+        }
+        if (state==TimerState.STOP){
+            Button(onClick = {
+                startOnCLick()
+            }) {
+                Text(text = "start")
+            }
+            IconButton(onClick = { settingsOnClick() }) {
+                Icon(Icons.Default.Settings, contentDescription = "settings button")
+            }
+        }
+        else if (state==TimerState.PAUSE){
+            Row() {
+                Button(onClick = {
+                    resumeOnCLick()
+                }) {
+                    Text(text = "resume")
+                }
+                Button(onClick = {
+                    stopOnCLick()
+
+                }) {
+                    Text(text = "stop")
+                }
+            }
+
+        }
+        else if (state==TimerState.COUNTING){
+            Button(onClick = {
+                pauseOnCLick()
+            }) {
+                Text(text = "pause")
+            }
+        }
+
+    }
 }
 
 @OptIn(ExperimentalAnimationApi::class)

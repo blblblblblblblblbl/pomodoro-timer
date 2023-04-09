@@ -34,9 +34,21 @@ class TimerFragmentViewModel @Inject constructor(
     val time = _time.asStateFlow()
     var timeJob:Job? = null
 
+    private val _goal = MutableStateFlow<Int?>(null)
+    val goal = _goal.asStateFlow()
+
+    private val _progress = MutableStateFlow<Int?>(null)
+    val progress = _progress.asStateFlow()
+    private val _timeTask = MutableStateFlow<Long?>(null)
+    val timeTask = _timeTask.asStateFlow()
+
     fun getConfig(){
         viewModelScope.launch {
-            _timerConfiguration.value = getConfigurationUseCase.execute()
+            val config = getConfigurationUseCase.execute()
+            _timerConfiguration.value = config
+            _timeTask.value = (config?.workTime?.times(1000))?.toLong()
+            _time.value = timeTask.value
+            _goal.value = config?.goal
         }
     }
     fun getTimerState(){
@@ -67,7 +79,7 @@ class TimerFragmentViewModel @Inject constructor(
     }
 
     fun startTimer(){
-        timerActionsUseCase.startTimer(30*1000)
+        timeTask.value?.let { timerActionsUseCase.startTimer(it) }
 
         getTimerState()
         timeJob = viewModelScope.launch {
@@ -93,6 +105,7 @@ class TimerFragmentViewModel @Inject constructor(
         timeJob?.cancel()
         timerActionsUseCase.stopTimer()
         getTimerState()
+        _time.value = _timeTask.value
     }
     fun pauseTimer(){
         timerActionsUseCase.pauseTimer()
