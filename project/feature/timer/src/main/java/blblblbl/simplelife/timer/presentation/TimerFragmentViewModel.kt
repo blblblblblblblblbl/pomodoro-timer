@@ -30,13 +30,25 @@ class TimerFragmentViewModel @Inject constructor(
     private val _timerStage = MutableStateFlow<TimerStage?>(null)
     val timerStage = _timerStage.asStateFlow()
 
-    private val _time = MutableStateFlow<Int?>(null)
+    private val _time = MutableStateFlow<Long?>(null)
     val time = _time.asStateFlow()
     var timeJob:Job? = null
 
+    private val _goal = MutableStateFlow<Int?>(null)
+    val goal = _goal.asStateFlow()
+
+    private val _progress = MutableStateFlow<Int?>(null)
+    val progress = _progress.asStateFlow()
+    private val _timeTask = MutableStateFlow<Long?>(null)
+    val timeTask = _timeTask.asStateFlow()
+
     fun getConfig(){
         viewModelScope.launch {
-            _timerConfiguration.value = getConfigurationUseCase.execute()
+            val config = getConfigurationUseCase.execute()
+            _timerConfiguration.value = config
+            _timeTask.value = (config?.workTime?.times(1000))?.toLong()
+            _time.value = timeTask.value
+            _goal.value = config?.goal
         }
     }
     fun getTimerState(){
@@ -51,10 +63,11 @@ class TimerFragmentViewModel @Inject constructor(
         getTimerState()
         getTimerStage()
         getTime()
+        _progress.value = timerActionsUseCase.getProgress()
         if (_timerState.value==TimerState.COUNTING){
             timeJob = viewModelScope.launch {
                 while (true){
-                    _time.value = (timerActionsUseCase.getTimeRemaining()/1000).toInt()
+                    _time.value = (timerActionsUseCase.getTimeRemaining())
                     delay(1000)
                 }
             }
@@ -65,14 +78,35 @@ class TimerFragmentViewModel @Inject constructor(
         _timerStage.value = timerStage
         timerActionsUseCase.setTimerStage(timerStage)
     }
+    fun goToNextStage(){
+        if(_timerStage.value==TimerStage.WORK){
+            timerActionsUseCase.setTimerStage(TimerStage.RELAX)
+            _timerStage.value = TimerStage.RELAX
+            _timeTask.value = (_timerConfiguration.value?.relaxTime?.times(1000))?.toLong()
+            if (_progress.value!=null){
+                _progress.value = _progress.value!!+1
+                val curProgress = timerActionsUseCase.getProgress()
+                curProgress?.let { curProgress->
+                    timerActionsUseCase.setProgress(curProgress+1)
+                }
+            }
+
+        }
+        else{
+            timerActionsUseCase.setTimerStage(TimerStage.WORK)
+            _timerStage.value = TimerStage.WORK
+            _timeTask.value = (_timerConfiguration.value?.workTime?.times(1000))?.toLong()
+        }
+        stopTimer()
+    }
 
     fun startTimer(){
-        timerActionsUseCase.startTimer(30*1000)
+        timeTask.value?.let { timerActionsUseCase.startTimer(it) }
 
         getTimerState()
         timeJob = viewModelScope.launch {
             while (true){
-                _time.value = (timerActionsUseCase.getTimeRemaining()/1000).toInt()
+                _time.value = (timerActionsUseCase.getTimeRemaining())
                 delay(1000)
             }
         }
@@ -86,13 +120,14 @@ class TimerFragmentViewModel @Inject constructor(
 
         }
         else if (_timerState.value==TimerState.COUNTING){
-            _time.value = (timerActionsUseCase.getTimeRemaining()/1000).toInt()
+            _time.value = (timerActionsUseCase.getTimeRemaining())
         }
     }
     fun stopTimer(){
         timeJob?.cancel()
         timerActionsUseCase.stopTimer()
         getTimerState()
+        _time.value = _timeTask.value
     }
     fun pauseTimer(){
         timerActionsUseCase.pauseTimer()
@@ -103,10 +138,14 @@ class TimerFragmentViewModel @Inject constructor(
         timerActionsUseCase.resumeTimer()
         timeJob = viewModelScope.launch {
             while (true){
-                _time.value = (timerActionsUseCase.getTimeRemaining()/1000).toInt()
+                _time.value = (timerActionsUseCase.getTimeRemaining())
                 delay(1000)
             }
         }
         getTimerState()
+    }
+    fun resetProgress(){
+        timerActionsUseCase.setProgress(0)
+        _progress.value = 0
     }
 }

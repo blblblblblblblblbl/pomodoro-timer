@@ -35,5 +35,9 @@ interface TimerPersistentStorage {
 
     fun setTimerStage(timerStage: TimerStage?)
 
+    fun getProgress(): Int?
+
+    fun setProgress(progress: Int)
+
 
 }

@@ -7,6 +7,6 @@ import javax.inject.Inject
 class GetConfigurationUseCase @Inject constructor(
     private val repository: TimerRepository
 ) {
-    suspend fun execute(): Config =
+    suspend fun execute(): Config? =
         repository.getConfiguration()
 }

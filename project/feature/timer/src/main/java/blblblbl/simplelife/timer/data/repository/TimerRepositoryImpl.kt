@@ -17,8 +17,8 @@ class TimerRepositoryImpl @Inject constructor(
     private val timerPersistentStorage: TimerPersistentStorage
 ): TimerRepository {
 
-    override suspend fun getConfiguration(): Config =
-        persistentStorage.getConfig()?.mapToDomain()?: Config(null,null,null)
+    override suspend fun getConfiguration(): Config? =
+        persistentStorage.getConfig()?.mapToDomain()
 
     override fun startTime(): Date? = timerPersistentStorage.startTime()
 
@@ -47,7 +47,9 @@ class TimerRepositoryImpl @Inject constructor(
     override fun timerStage(): TimerStage? = timerPersistentStorage.timerStage()
 
     override fun setTimerStage(timerStage: TimerStage?) = timerPersistentStorage.setTimerStage(timerStage)
+    override fun getProgress(): Int? = timerPersistentStorage.getProgress()
 
+    override fun setProgress(progress: Int) = timerPersistentStorage.setProgress(progress)
 
 
 }

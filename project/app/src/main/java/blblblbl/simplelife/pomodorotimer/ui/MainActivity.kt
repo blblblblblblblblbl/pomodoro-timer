@@ -11,10 +11,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import blblblbl.simplelife.configtimer.ui.ConfigurationFragment
+import blblblbl.simplelife.pomodorotimer.navigation.AppDestination
+import blblblbl.simplelife.pomodorotimer.navigation.ConfigTimerDest
+import blblblbl.simplelife.pomodorotimer.navigation.TimerDest
 import blblblbl.simplelife.pomodorotimer.ui.theming.AppTheme
 import blblblbl.simplelife.timer.ui.TimerFragment
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -39,7 +44,7 @@ class MainActivity : AppCompatActivity() {
 }
 
 @Composable
-fun AppScreen(startDestination:String = "timer_screen"){
+fun AppScreen(startDestination: AppDestination = TimerDest){
     val navController = rememberNavController()
     AppNavHost(
         navController = navController,
@@ -50,15 +55,31 @@ fun AppScreen(startDestination:String = "timer_screen"){
 fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    startDestination:String = "MainFeedNested"
+    startDestination:AppDestination = TimerDest
 ) {
     NavHost(
         navController = navController,
-        startDestination = startDestination,
+        startDestination = startDestination.route,
         modifier = modifier
     ) {
-        composable(route = "timer_screen") {
-            TimerFragment()
+        composable(route = TimerDest.route) {
+            TimerFragment(onSettingsClicked = {
+                navController.navigateSingleTopTo(ConfigTimerDest.route)
+            },
+            menuOnClick = {})
+        }
+        composable(route = ConfigTimerDest.route) {
+            ConfigurationFragment()
         }
     }
 }
+fun NavHostController.navigateSingleTopTo(route: String) =
+    this.navigate(route) {
+        popUpTo(
+            this@navigateSingleTopTo.graph.findStartDestination().id
+        ) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
+    }

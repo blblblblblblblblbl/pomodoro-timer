@@ -2,14 +2,17 @@ package blblblbl.simplelife.timer.data.persistent_storage
 
 import android.content.SharedPreferences
 import android.util.Log
+import blblblbl.simplelife.timer.data.di.TimerFeature
 import blblblbl.simplelife.timer.data.model.Config
 import blblblbl.simplelife.timer.data.persistent_storage.utils.StorageConverter
 import javax.inject.Inject
 
 class ConfigurationPersistentStorageImpl @Inject constructor(
-    private val storageConverter: StorageConverter,
     private val sharedPreferences: SharedPreferences
 ) :ConfigurationPersistentStorage {
+    @Inject
+    @TimerFeature
+    lateinit var storageConverter: StorageConverter
     private val editor = sharedPreferences.edit()
     override fun addProperty(name: String?, value: String?) {
 

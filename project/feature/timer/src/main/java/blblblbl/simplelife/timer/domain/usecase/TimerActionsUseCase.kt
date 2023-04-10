@@ -16,6 +16,8 @@ class TimerActionsUseCase @Inject constructor(
 
     fun setTimerStage(timerStage: TimerStage) = timerRepository.setTimerStage(timerStage)
 
+    fun getProgress():Int? = timerRepository.getProgress()
+    fun setProgress(progress:Int) = timerRepository.setProgress(progress)
 
     fun startTimer(timeTask:Long){
         val startTime = Date(System.currentTimeMillis())
