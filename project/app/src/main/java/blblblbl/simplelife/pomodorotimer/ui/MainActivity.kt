@@ -21,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import blblblbl.simplelife.configtimer.ui.ConfigurationFragment
 import blblblbl.simplelife.pomodorotimer.navigation.*
 import blblblbl.simplelife.pomodorotimer.ui.theming.AppTheme
+import blblblbl.simplelife.settings.ui.SettingsFragment
 import blblblbl.simplelife.timer.ui.TimerFragment
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,7 +56,9 @@ fun AppScreen(startDestination: AppDestination = TimerDest){
             drawerContent =
             {
                 ModalDrawerSheet(
-                    modifier = Modifier.fillMaxSize().padding(end = 50.dp)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(end = 50.dp)
                 ) {
                     DrawerContent(
                         navController = navController,
@@ -64,6 +67,7 @@ fun AppScreen(startDestination: AppDestination = TimerDest){
                 }
 
             },
+            gesturesEnabled = false,
             drawerState = drawerState
         ) {
             AppNavHost(
@@ -104,7 +108,7 @@ fun AppNavHost(
             Text(text = "HistoryDest")
         }
         composable(route = AppSettingDest.route) {
-            Text(text = "AppSettingDest")
+            SettingsFragment()
         }
         composable(route = OnBoardingDest.route) {
             Text(text = "OnBoardingDest")

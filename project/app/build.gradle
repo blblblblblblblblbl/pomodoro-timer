@@ -58,6 +58,7 @@ dependencies {
 
     implementation project(path: ':feature:configtimer')
     implementation project(path: ':feature:timer')
+    implementation project(path: ':feature:settings')
 
     //mvvm
     implementation("androidx.activity:activity-ktx:1.7.0")
