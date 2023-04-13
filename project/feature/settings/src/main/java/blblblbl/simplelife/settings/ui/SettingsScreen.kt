@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -31,81 +32,7 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 fun SettingsScreen() {
     val context = LocalContext.current
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        /*DropDownCard(
-            modifier = Modifier
-                .padding(20.dp)
-                .heightIn(max = 300.dp),
-            header = "alarm"
-        ) {
-            val alarms = mutableListOf<String>()
-            for (i in 1..15) {
-                alarms.add("alarm $i")
-            }
-            LazyColumn(modifier = Modifier.padding(10.dp)) {
-                items(alarms) { alarm ->
-                    Button(
-                        onClick = { Toast.makeText(context, "$alarm played", Toast.LENGTH_SHORT).show() },
-                        modifier = Modifier.fillMaxWidth()) {
-                        Text(text = alarm)
-                    }
-                }
-            }
-        }
-        DropDownCard(
-            modifier = Modifier
-                .padding(20.dp)
-                .heightIn(max = 300.dp),
-            header = "theme"
-        ) {
-            var showDialog by remember { mutableStateOf(false) }
-            if (showDialog) {
-                ColorPickerDialog(
-                    setShowDialog = { b -> showDialog = b },
-                    changeColor ={
-                        Toast.makeText(context,"color saved",Toast.LENGTH_SHORT).show()
-                    })
-            }
-            val colors = mutableListOf<Color>(
-                Color.Transparent,
-                Color.White,
-                Color.Black,
-                Color.Blue,
-                Color.Gray,
-                Color.Green,
-                Color.Magenta,
-                Color.Red,
-                Color.Yellow
-            )
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(48.dp),
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .fillMaxWidth()
-                ) {
-                    items(colors) { color ->
-                        IconButton(onClick = { *//*TODO*//* }) {
-                            Surface(
-                                color = color,
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .border(
-                                        1.dp,
-                                        color = MaterialTheme.colorScheme.outline,
-                                        shape = RoundedCornerShape(8.dp)
-                                    ),
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
-
-                            }
-                        }
-                    }
-                }
-                Button(onClick = { showDialog = true }) {
-                    Text(text = "custom")
-                }
-            }
-        }*/
+        
         AlarmPicker()
         ThemePicker()
         NextStagePicker()
@@ -179,13 +106,19 @@ fun ThemePicker() {
         )
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(48.dp),
+                columns = GridCells.Adaptive(50.dp),
                 modifier = Modifier
                     .padding(10.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(5.dp),
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 items(colors) { color ->
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(
+                        onClick = { /*TODO*/ },
+                        modifier = Modifier
+                            .size(48.dp)
+                    ) {
                         Surface(
                             color = color,
                             modifier = Modifier
@@ -193,12 +126,10 @@ fun ThemePicker() {
                                 .border(
                                     1.dp,
                                     color = MaterialTheme.colorScheme.outline,
-                                    shape = RoundedCornerShape(8.dp)
+                                    shape = CircleShape
                                 ),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-
-                        }
+                            shape = CircleShape
+                        ) {}
                     }
                 }
             }
@@ -208,20 +139,25 @@ fun ThemePicker() {
         }
     }
 }
+
 @Composable
-fun NextStagePicker(){
+fun NextStagePicker() {
     Card() {
-        Column(horizontalAlignment = Alignment.CenterHorizontally,modifier = Modifier.padding(15.dp)) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(15.dp)
+        ) {
             Text(text = "timer go to next stage")
             Row(verticalAlignment = Alignment.CenterVertically) {
                 var checked by remember { mutableStateOf(false) }
                 Text(text = "auto")
-                Switch(checked = checked, onCheckedChange = {checked = !checked})
+                Switch(checked = checked, onCheckedChange = { checked = !checked })
                 Text(text = "manually")
             }
         }
     }
 }
+
 @Composable
 fun ColorPickerDialog(
     setShowDialog: (Boolean) -> Unit,
