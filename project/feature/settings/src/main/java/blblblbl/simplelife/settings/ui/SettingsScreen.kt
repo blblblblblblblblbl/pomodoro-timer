@@ -3,6 +3,7 @@ package blblblbl.simplelife.settings.ui
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,12 +14,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -32,7 +35,7 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 fun SettingsScreen() {
     val context = LocalContext.current
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        
+
         AlarmPicker()
         ThemePicker()
         NextStagePicker()
@@ -119,6 +122,7 @@ fun ThemePicker() {
                         modifier = Modifier
                             .size(48.dp)
                     ) {
+
                         Surface(
                             color = color,
                             modifier = Modifier
@@ -132,9 +136,33 @@ fun ThemePicker() {
                         ) {}
                     }
                 }
-            }
-            Button(onClick = { showDialog = true }) {
-                Text(text = "custom")
+                item {
+                    val colorStops = arrayOf(
+                        0.0f to Color.Yellow,
+                        0.2f to Color.Red,
+                        1f to Color.Blue
+                    )
+                    IconButton(
+                        onClick = { showDialog = true },
+                        modifier = Modifier
+                            .size(48.dp)
+                    ) {
+                        Surface(
+                            color = Color.Transparent,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .border(
+                                    1.dp,
+                                    color = MaterialTheme.colorScheme.outline,
+                                    shape = CircleShape
+                                ).background(
+                                    Brush.horizontalGradient(colorStops = colorStops),
+                                    shape = CircleShape
+                                ),
+                            shape = CircleShape
+                        ) {}
+                    }
+                }
             }
         }
     }
