@@ -1,5 +1,6 @@
 package blblblbl.simplelife.settings.ui
 
+import android.util.Log
 import androidx.compose.runtime.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import blblblbl.simplelife.settings.presentation.SettingsFragmentViewModel
@@ -10,5 +11,11 @@ fun SettingsFragment(){
     val viewModel:SettingsFragmentViewModel = hiltViewModel()
     viewModel.getConfig()
     val config by viewModel.config.collectAsState()
-    SettingsScreen()
+    SettingsScreen(
+        config = config,
+        saveConfig = {conf->
+            Log.d("MyLog","viewModel.saveConfig(conf):$conf" )
+            viewModel.saveConfig(conf)
+        }
+    )
 }

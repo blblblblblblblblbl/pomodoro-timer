@@ -21,6 +21,7 @@ class SettingsFragmentViewModel @Inject constructor(
     fun getConfig(){
         viewModelScope.launch {
             val config = getAppConfigUseCase.execute()
+            _config.value = config
         }
     }
 

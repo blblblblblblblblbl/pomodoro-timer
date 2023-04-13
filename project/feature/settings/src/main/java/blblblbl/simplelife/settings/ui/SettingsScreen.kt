@@ -1,5 +1,6 @@
 package blblblbl.simplelife.settings.ui
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -27,17 +28,28 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import blblblbl.simplelife.settings.domain.model.AppConfiguration
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    config:AppConfiguration?,
+    saveConfig:(AppConfiguration)->Unit
+) {
     val context = LocalContext.current
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
         AlarmPicker()
-        ThemePicker()
+        ThemePicker(
+            saveColor = {color->
+                Log.d("MyLog","saveColor, config=:$config")
+                if (config!=null){
+                    Log.d("MyLog","config!=null:${config.copy(themeColor = color)}")
+                    saveConfig(config.copy(themeColor = color))
+                }
+            })
         NextStagePicker()
 
     }
@@ -80,7 +92,9 @@ fun AlarmPicker() {
 }
 
 @Composable
-fun ThemePicker() {
+fun ThemePicker(
+    saveColor:(Int)->Unit
+) {
     val context = LocalContext.current
     DropDownCard(
         modifier = Modifier
@@ -92,7 +106,8 @@ fun ThemePicker() {
         if (showDialog) {
             ColorPickerDialog(
                 setShowDialog = { b -> showDialog = b },
-                changeColor = {
+                changeColor = {color->
+                    saveColor(color)
                     Toast.makeText(context, "color saved", Toast.LENGTH_SHORT).show()
                 })
         }
@@ -118,7 +133,11 @@ fun ThemePicker() {
             ) {
                 items(colors) { color ->
                     IconButton(
-                        onClick = { /*TODO*/ },
+                        onClick =
+                        {
+                            saveColor(color.toArgb())
+                            Toast.makeText(context, "color saved", Toast.LENGTH_SHORT).show()
+                        },
                         modifier = Modifier
                             .size(48.dp)
                     ) {

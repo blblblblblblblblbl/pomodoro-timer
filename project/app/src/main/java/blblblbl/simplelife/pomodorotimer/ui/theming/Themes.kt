@@ -1,13 +1,18 @@
 package blblblbl.simplelife.pomodorotimer.ui.theming
 
 import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import blblblbl.simplelife.pomodorotimer.ui.theming.material_you_utils.scheme.Scheme
+import blblblbl.simplelife.settings.domain.model.AppConfiguration
+import kotlinx.coroutines.flow.StateFlow
 
 private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
@@ -77,52 +82,58 @@ private val DarkColors = darkColorScheme(
 @Composable
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    configFlow:StateFlow<AppConfiguration?>,
     content: @Composable () -> Unit
 ) {
     val dynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    val colorScheme = when {
+    var colorScheme = when {
         dynamicColor && darkTheme -> dynamicDarkColorScheme(LocalContext.current)
         dynamicColor && !darkTheme -> dynamicLightColorScheme(LocalContext.current)
         darkTheme -> DarkColors
         else -> LightColors
     }
-    val scheme =Scheme.light(Color.Blue.toArgb())
-    val colorScheme2 = ColorScheme(
-        primary= Color(scheme.primary),
-        onPrimary=Color(scheme.onPrimary),
-        primaryContainer=Color(scheme.primaryContainer),
-        onPrimaryContainer=Color(scheme.onPrimaryContainer),
-        inversePrimary=Color(scheme.inversePrimary),
-        secondary=Color(scheme.secondary),
-        onSecondary=Color(scheme.onSecondary),
-        secondaryContainer=Color(scheme.secondaryContainer),
-        onSecondaryContainer=Color(scheme.onSecondaryContainer),
-        tertiary=Color(scheme.tertiary),
-        onTertiary=Color(scheme.onTertiary),
-        tertiaryContainer=Color(scheme.tertiaryContainer),
-        onTertiaryContainer=Color(scheme.onTertiaryContainer),
-        background=Color(scheme.background),
-        onBackground=Color(scheme.onBackground),
-        surface=Color(scheme.surface),
-        onSurface=Color(scheme.onSurface),
-        surfaceVariant=Color(scheme.surfaceVariant),
-        onSurfaceVariant=Color(scheme.onSurfaceVariant),
-        surfaceTint=Color(scheme.surfaceVariant),
-        inverseSurface=Color(scheme.inverseSurface),
-        inverseOnSurface=Color(scheme.inverseOnSurface),
-        error=Color(scheme.error),
-        onError=Color(scheme.onError),
-        errorContainer=Color(scheme.errorContainer),
-        onErrorContainer=Color(scheme.onErrorContainer),
-        outline=Color(scheme.outline),
-        outlineVariant=Color(scheme.outlineVariant),
-        scrim=Color(scheme.scrim),
-    )
-    /*Scheme.light(Color.Blue.toArgb())
-    ColorScheme
-    CorePalette.of(Color.Blue.toArgb())*/
+    val config by configFlow.collectAsState()
+    Log.d("MyLog",config.toString())
+    config?.themeColor?.let { themeColor->
+        if (themeColor!=Color.Transparent.toArgb()){
+            Log.d("MyLog",config.toString())
+            val scheme:Scheme = if (!darkTheme) Scheme.light(themeColor) else Scheme.dark(themeColor)
+            colorScheme = ColorScheme(
+                primary= Color(scheme.primary),
+                onPrimary=Color(scheme.onPrimary),
+                primaryContainer=Color(scheme.primaryContainer),
+                onPrimaryContainer=Color(scheme.onPrimaryContainer),
+                inversePrimary=Color(scheme.inversePrimary),
+                secondary=Color(scheme.secondary),
+                onSecondary=Color(scheme.onSecondary),
+                secondaryContainer=Color(scheme.secondaryContainer),
+                onSecondaryContainer=Color(scheme.onSecondaryContainer),
+                tertiary=Color(scheme.tertiary),
+                onTertiary=Color(scheme.onTertiary),
+                tertiaryContainer=Color(scheme.tertiaryContainer),
+                onTertiaryContainer=Color(scheme.onTertiaryContainer),
+                background=Color(scheme.background),
+                onBackground=Color(scheme.onBackground),
+                surface=Color(scheme.surface),
+                onSurface=Color(scheme.onSurface),
+                surfaceVariant=Color(scheme.surfaceVariant),
+                onSurfaceVariant=Color(scheme.onSurfaceVariant),
+                surfaceTint=Color(scheme.surfaceVariant),
+                inverseSurface=Color(scheme.inverseSurface),
+                inverseOnSurface=Color(scheme.inverseOnSurface),
+                error=Color(scheme.error),
+                onError=Color(scheme.onError),
+                errorContainer=Color(scheme.errorContainer),
+                onErrorContainer=Color(scheme.onErrorContainer),
+                outline=Color(scheme.outline),
+                outlineVariant=Color(scheme.outlineVariant),
+                scrim=Color(scheme.scrim),
+            )
+
+        }
+    }
     MaterialTheme(
-        colorScheme = colorScheme2,
+        colorScheme = colorScheme,
         typography = UnsplashTypography,
         shapes = UnsplashShapes,
         content = content
