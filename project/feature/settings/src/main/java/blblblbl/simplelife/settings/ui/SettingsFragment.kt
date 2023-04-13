@@ -14,7 +14,6 @@ fun SettingsFragment(){
     SettingsScreen(
         config = config,
         saveConfig = {conf->
-            Log.d("MyLog","viewModel.saveConfig(conf):$conf" )
             viewModel.saveConfig(conf)
         }
     )

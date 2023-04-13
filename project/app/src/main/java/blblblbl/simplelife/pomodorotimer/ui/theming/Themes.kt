@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import blblblbl.simplelife.pomodorotimer.ui.theming.material_you_utils.scheme.Scheme
 import blblblbl.simplelife.settings.domain.model.AppConfiguration
+import blblblbl.simplelife.settings.domain.model.ThemeMode
 import kotlinx.coroutines.flow.StateFlow
 
 private val LightColors = lightColorScheme(
@@ -86,18 +87,21 @@ fun AppTheme(
     content: @Composable () -> Unit
 ) {
     val dynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    val config by configFlow.collectAsState()
+    val userDark = config?.themeMode?:ThemeMode.AUTO
+    val isDark =
+        if (userDark==ThemeMode.NIGHT) true
+        else if(userDark==ThemeMode.LIGHT) false
+        else darkTheme
     var colorScheme = when {
-        dynamicColor && darkTheme -> dynamicDarkColorScheme(LocalContext.current)
-        dynamicColor && !darkTheme -> dynamicLightColorScheme(LocalContext.current)
+        dynamicColor && isDark -> dynamicDarkColorScheme(LocalContext.current)
+        dynamicColor && !isDark -> dynamicLightColorScheme(LocalContext.current)
         darkTheme -> DarkColors
         else -> LightColors
     }
-    val config by configFlow.collectAsState()
-    Log.d("MyLog",config.toString())
     config?.themeColor?.let { themeColor->
         if (themeColor!=Color.Transparent.toArgb()){
-            Log.d("MyLog",config.toString())
-            val scheme:Scheme = if (!darkTheme) Scheme.light(themeColor) else Scheme.dark(themeColor)
+            val scheme:Scheme = if (!isDark) Scheme.light(themeColor) else Scheme.dark(themeColor)
             colorScheme = ColorScheme(
                 primary= Color(scheme.primary),
                 onPrimary=Color(scheme.onPrimary),
@@ -129,7 +133,6 @@ fun AppTheme(
                 outlineVariant=Color(scheme.outlineVariant),
                 scrim=Color(scheme.scrim),
             )
-
         }
     }
     MaterialTheme(

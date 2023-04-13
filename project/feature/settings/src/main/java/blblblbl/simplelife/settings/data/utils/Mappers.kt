@@ -7,6 +7,7 @@ fun DataConfig.mapToDomain():DomainConfig{
     val domainConfig:DomainConfig =
         DomainConfig(
             this.themeColor,
+            this.themeMode,
             this.alarmRingtone,
             this.isAutomaticNextStage
         )
@@ -16,6 +17,7 @@ fun DomainConfig.mapToData():DataConfig{
     val dataConfig:DataConfig =
         DataConfig(
             this.themeColor,
+            this.themeMode,
             this.alarmRingtone,
             this.isAutomaticNextStage
         )

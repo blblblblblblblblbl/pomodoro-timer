@@ -5,6 +5,7 @@ import blblblbl.simplelife.settings.data.persistent_storage.SettingsPersistentSt
 import blblblbl.simplelife.settings.data.utils.mapToData
 import blblblbl.simplelife.settings.data.utils.mapToDomain
 import blblblbl.simplelife.settings.domain.model.AppConfiguration
+import blblblbl.simplelife.settings.domain.model.ThemeMode
 import blblblbl.simplelife.settings.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,14 +20,12 @@ class SettingsRepositoryImpl @Inject constructor(
     override val config = _config.asStateFlow()
     override fun saveConfig(config: AppConfiguration) {
         settingsPersistentStorage.addConfig(config.mapToData())
-        Log.d("MyLog","SettingsRepositoryImpl config save:${config.toString()}")
         _config.value = config
     }
 
 
     override fun getConfig(): AppConfiguration? {
-        val configuration = settingsPersistentStorage.getConfig()?.mapToDomain()?:AppConfiguration(null,null,false)
-        //_config.value = configuration
+        val configuration = settingsPersistentStorage.getConfig()?.mapToDomain()?:AppConfiguration(null,ThemeMode.AUTO,null,false)
         return configuration
     }
 }

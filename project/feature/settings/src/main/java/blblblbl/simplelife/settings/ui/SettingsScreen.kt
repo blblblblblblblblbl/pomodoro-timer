@@ -15,9 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Android
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.FormatColorFill
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import blblblbl.simplelife.settings.domain.model.AppConfiguration
+import blblblbl.simplelife.settings.domain.model.ThemeMode
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
@@ -44,23 +43,19 @@ fun SettingsScreen(
         AlarmPicker()
         ThemePicker(
             saveColor = {color->
-                Log.d("MyLog","saveColor, config=:$config")
                 if (config!=null){
-                    Log.d("MyLog","config!=null:${config.copy(themeColor = color)}")
                     saveConfig(config.copy(themeColor = color))
                 }
-            })
+            },
+            setMode = {mode->
+                if (config!=null){
+                    saveConfig(config.copy(themeMode = mode))
+                }
+            }
+        )
         NextStagePicker()
 
     }
-
-    /*CustomColorPicker(
-        changeColor = {
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(20.dp)
-    )*/
 }
 
 @Composable
@@ -93,7 +88,8 @@ fun AlarmPicker() {
 
 @Composable
 fun ThemePicker(
-    saveColor:(Int)->Unit
+    saveColor:(Int)->Unit,
+    setMode:(ThemeMode)->Unit
 ) {
     val context = LocalContext.current
     DropDownCard(
@@ -102,91 +98,132 @@ fun ThemePicker(
             .heightIn(max = 300.dp),
         header = "theme"
     ) {
-        var showDialog by remember { mutableStateOf(false) }
-        if (showDialog) {
-            ColorPickerDialog(
-                setShowDialog = { b -> showDialog = b },
-                changeColor = {color->
-                    saveColor(color)
-                    Toast.makeText(context, "color saved", Toast.LENGTH_SHORT).show()
-                })
-        }
-        val colors = mutableListOf<Color>(
-            Color.Transparent,
-            Color.White,
-            Color.Black,
-            Color.Blue,
-            Color.Gray,
-            Color.Green,
-            Color.Magenta,
-            Color.Red,
-            Color.Yellow
-        )
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(50.dp),
-                modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(5.dp),
-                horizontalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
-                items(colors) { color ->
-                    IconButton(
-                        onClick =
-                        {
-                            saveColor(color.toArgb())
-                            Toast.makeText(context, "color saved", Toast.LENGTH_SHORT).show()
-                        },
-                        modifier = Modifier
-                            .size(48.dp)
-                    ) {
 
-                        Surface(
-                            color = color,
-                            modifier = Modifier
-                                .size(48.dp)
-                                .border(
-                                    1.dp,
-                                    color = MaterialTheme.colorScheme.outline,
-                                    shape = CircleShape
-                                ),
+            ThemeColorPicker(saveColor)
+            Divider(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.outline
+            )
+            LightDarkThemePicker(setMode)
+        }
+    }
+}
+@Composable
+fun ThemeColorPicker(
+    saveColor:(Int)->Unit
+){
+    val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+    if (showDialog) {
+        ColorPickerDialog(
+            setShowDialog = { b -> showDialog = b },
+            changeColor = {color->
+                saveColor(color)
+                Toast.makeText(context, "color saved", Toast.LENGTH_SHORT).show()
+            })
+    }
+    val colors = mutableListOf<Color>(
+        Color.Transparent,
+        Color.White,
+        Color.Black,
+        Color.Blue,
+        Color.Gray,
+        Color.Green,
+        Color.Magenta,
+        Color.Red,
+        Color.Yellow
+    )
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(50.dp),
+        modifier = Modifier
+            .padding(10.dp)
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+        horizontalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        items(colors) { color ->
+            IconButton(
+                onClick =
+                {
+                    saveColor(color.toArgb())
+                    Toast.makeText(context, "color saved", Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier
+                    .size(48.dp)
+            ) {
+
+                Surface(
+                    color = color,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .border(
+                            1.dp,
+                            color = MaterialTheme.colorScheme.outline,
                             shape = CircleShape
-                        ) {}
-                    }
-                }
-                item {
-                    val colorStops = arrayOf(
-                        0.0f to Color.Yellow,
-                        0.2f to Color.Red,
-                        1f to Color.Blue
-                    )
-                    IconButton(
-                        onClick = { showDialog = true },
-                        modifier = Modifier
-                            .size(48.dp)
-                    ) {
-                        Surface(
-                            color = Color.Transparent,
-                            modifier = Modifier
-                                .size(48.dp)
-                                .border(
-                                    1.dp,
-                                    color = MaterialTheme.colorScheme.outline,
-                                    shape = CircleShape
-                                ).background(
-                                    Brush.horizontalGradient(colorStops = colorStops),
-                                    shape = CircleShape
-                                ),
+                        ),
+                    shape = CircleShape
+                ) {}
+            }
+        }
+        item {
+            val colorStops = arrayOf(
+                0.0f to Color.Yellow,
+                0.2f to Color.Red,
+                1f to Color.Blue
+            )
+            IconButton(
+                onClick = { showDialog = true },
+                modifier = Modifier
+                    .size(48.dp)
+            ) {
+                Surface(
+                    color = Color.Transparent,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .border(
+                            1.dp,
+                            color = MaterialTheme.colorScheme.outline,
                             shape = CircleShape
-                        ) {}
-                    }
-                }
+                        )
+                        .background(
+                            Brush.horizontalGradient(colorStops = colorStops),
+                            shape = CircleShape
+                        ),
+                    shape = CircleShape
+                ) {}
             }
         }
     }
 }
-
+@Composable
+fun LightDarkThemePicker(
+    setMode:(ThemeMode)->Unit
+){
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = "light/dark")
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            IconButton(
+                onClick = {setMode(ThemeMode.AUTO)}
+            ) {
+                Icon(Icons.Default.BrightnessAuto, contentDescription = "AutoMode", modifier = Modifier.size(48.dp))
+            }
+            IconButton(
+                onClick = {setMode(ThemeMode.LIGHT)}
+            ) {
+                Icon(Icons.Default.LightMode, contentDescription = "LightMode", modifier = Modifier.size(48.dp))
+            }
+            IconButton(
+                onClick = {setMode(ThemeMode.NIGHT)}
+            ) {
+                Icon(Icons.Default.ModeNight, contentDescription = "ModeNight", modifier = Modifier.size(48.dp))
+            }
+        }
+    }
+}
 @Composable
 fun NextStagePicker() {
     Card() {
