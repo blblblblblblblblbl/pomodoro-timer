@@ -100,6 +100,7 @@ fun AlarmPicker(
     ) {
         val alarms = mutableListOf<String>()
         var pickedAlarm by remember { mutableStateOf(initialAlarm)}
+        var mpIsPLaying by remember { mutableStateOf(mediaPlayer.isPlaying) }
         for (i in 1..3) {
             alarms.add("android.resource://"+"blblblbl.simplelife.pomodorotimer"+"/raw/ringtone$i")
             //also possible variant
@@ -119,6 +120,7 @@ fun AlarmPicker(
                                 setDataSource(context, Uri.parse(alarm))
                                 prepare()
                                 start()
+                                mpIsPLaying = true
                             }
                             Toast.makeText(context, "$alarmName played", Toast.LENGTH_SHORT).show()
                         },
@@ -147,9 +149,10 @@ fun AlarmPicker(
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (mediaPlayer.isPlaying){
+                if (mpIsPLaying){
                     IconButton(onClick = {
                         mediaPlayer.pause()
+                        mpIsPLaying = false
                     }) {
                         Icon(Icons.Default.Pause, contentDescription = "stop alarm")
                     }
