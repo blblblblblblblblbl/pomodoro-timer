@@ -1,9 +1,12 @@
 package blblblbl.simplelife.settings.ui
 
+
+import android.media.AudioAttributes
+import android.media.MediaPlayer
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -12,16 +15,18 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -32,6 +37,7 @@ import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 
+
 @Composable
 fun SettingsScreen(
     config:AppConfiguration?,
@@ -40,7 +46,14 @@ fun SettingsScreen(
     val context = LocalContext.current
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-        AlarmPicker()
+        AlarmPicker(
+            config?.alarmRingtone,
+            setAlarm = {alarm->
+                config?.let { config->
+                    saveConfig(config.copy(alarmRingtone = alarm))
+                }
+            }
+        )
         ThemePicker(
             saveColor = {color->
                 if (config!=null){
@@ -53,14 +66,32 @@ fun SettingsScreen(
                 }
             }
         )
-        NextStagePicker()
-
+        NextStagePicker(
+            initial = config?.isAutomaticNextStage?:false,
+            setState = {bool->
+                config?.let { config->
+                    saveConfig(config.copy(isAutomaticNextStage = bool))
+                }
+            }
+        )
     }
 }
 
 @Composable
-fun AlarmPicker() {
+fun AlarmPicker(
+    initialAlarm:String?,
+    setAlarm:(String)->Unit
+) {
+    var initialAlarm = initialAlarm
     val context = LocalContext.current
+    val mediaPlayer = MediaPlayer().apply {
+        setAudioAttributes(
+            AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .build()
+        )
+    }
     DropDownCard(
         modifier = Modifier
             .padding(20.dp)
@@ -68,21 +99,73 @@ fun AlarmPicker() {
         header = "alarm"
     ) {
         val alarms = mutableListOf<String>()
-        for (i in 1..15) {
-            alarms.add("alarm $i")
+        var pickedAlarm by remember { mutableStateOf(initialAlarm)}
+        for (i in 1..3) {
+            alarms.add("android.resource://"+"blblblbl.simplelife.pomodorotimer"+"/raw/ringtone$i")
+            //also possible variant
+            //val pkgName: String = context.getPackageName()//blblblbl.simplelife.pomodorotimer
+            //val path = Uri.parse("android.resource://$pkgName" + "/" + blblblbl.simplelife.recources.R.raw.ringtone2)
         }
-        LazyColumn(modifier = Modifier.padding(10.dp)) {
-            items(alarms) { alarm ->
-                Button(
-                    onClick = {
-                        Toast.makeText(context, "$alarm played", Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = alarm)
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            LazyColumn(modifier = Modifier.padding(10.dp)) {
+
+                items(alarms) { alarm ->
+                    val alarmName = alarm.removePrefix("android.resource://blblblbl.simplelife.pomodorotimer/raw/")
+                    Button(
+                        onClick = {
+                            pickedAlarm = alarm
+                            mediaPlayer.apply {
+                                reset()
+                                setDataSource(context, Uri.parse(alarm))
+                                prepare()
+                                start()
+                            }
+                            Toast.makeText(context, "$alarmName played", Toast.LENGTH_SHORT).show()
+                        },
+
+                        colors =
+                        if (alarm == initialAlarm)
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.outline,
+                                if (MaterialTheme.colorScheme.outline.luminance()>0.5) Color.Black else Color.White
+                            )
+                        else
+                            ButtonDefaults.buttonColors(),
+                        shape = CircleShape,
+                        modifier =
+                        if (alarm==pickedAlarm) Modifier
+                            .fillMaxWidth()
+                            .border(
+                                4.dp,
+                                color = MaterialTheme.colorScheme.outline,
+                                shape = CircleShape
+                            )
+                        else Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = alarmName)
+                    }
+                }
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (mediaPlayer.isPlaying){
+                    IconButton(onClick = {
+                        mediaPlayer.pause()
+                    }) {
+                        Icon(Icons.Default.Pause, contentDescription = "stop alarm")
+                    }
+                }
+                if ((pickedAlarm!=null) && (pickedAlarm!=initialAlarm)){
+                    Button(onClick = {
+                        setAlarm(pickedAlarm!!)
+                        initialAlarm = pickedAlarm
+                    }
+                    ) {
+                        Text(text = "set alarm")
+                    }
                 }
             }
         }
+
     }
 }
 
@@ -225,7 +308,10 @@ fun LightDarkThemePicker(
     }
 }
 @Composable
-fun NextStagePicker() {
+fun NextStagePicker(
+    initial:Boolean,
+    setState:(Boolean)->Unit
+) {
     Card() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -233,10 +319,15 @@ fun NextStagePicker() {
         ) {
             Text(text = "timer go to next stage")
             Row(verticalAlignment = Alignment.CenterVertically) {
-                var checked by remember { mutableStateOf(false) }
+                var checked by remember { mutableStateOf(initial?:false) }
+                Text(text = "manual")
+                Switch(
+                    checked = checked,
+                    onCheckedChange = {
+                        checked = !checked
+                        setState(checked)
+                    })
                 Text(text = "auto")
-                Switch(checked = checked, onCheckedChange = { checked = !checked })
-                Text(text = "manually")
             }
         }
     }
