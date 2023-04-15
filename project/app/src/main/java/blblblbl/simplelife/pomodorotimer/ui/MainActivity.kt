@@ -3,6 +3,7 @@ package blblblbl.simplelife.pomodorotimer.ui
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.ModalDrawer
@@ -20,7 +21,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import blblblbl.simplelife.configtimer.ui.ConfigurationFragment
 import blblblbl.simplelife.pomodorotimer.navigation.*
+import blblblbl.simplelife.pomodorotimer.presentation.MainActivityViewModel
 import blblblbl.simplelife.pomodorotimer.ui.theming.AppTheme
+import blblblbl.simplelife.settings.ui.SettingsFragment
 import blblblbl.simplelife.timer.ui.TimerFragment
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,11 +31,14 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+    private val viewModel: MainActivityViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val systemUiController = rememberSystemUiController()
-            AppTheme {
+            AppTheme(
+                configFlow = viewModel.getSettingsFlow()
+            ) {
                 val useDarkIcons = !isSystemInDarkTheme()
                 val color = MaterialTheme.colorScheme.surfaceColorAtElevation(5.dp)
                 SideEffect {
@@ -55,7 +61,9 @@ fun AppScreen(startDestination: AppDestination = TimerDest){
             drawerContent =
             {
                 ModalDrawerSheet(
-                    modifier = Modifier.fillMaxSize().padding(end = 50.dp)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(end = 50.dp)
                 ) {
                     DrawerContent(
                         navController = navController,
@@ -64,6 +72,7 @@ fun AppScreen(startDestination: AppDestination = TimerDest){
                 }
 
             },
+            gesturesEnabled = false,
             drawerState = drawerState
         ) {
             AppNavHost(
@@ -104,7 +113,7 @@ fun AppNavHost(
             Text(text = "HistoryDest")
         }
         composable(route = AppSettingDest.route) {
-            Text(text = "AppSettingDest")
+            SettingsFragment()
         }
         composable(route = OnBoardingDest.route) {
             Text(text = "OnBoardingDest")

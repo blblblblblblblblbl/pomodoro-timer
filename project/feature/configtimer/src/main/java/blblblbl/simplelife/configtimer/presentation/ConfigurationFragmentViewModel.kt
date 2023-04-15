@@ -26,6 +26,7 @@ class ConfigurationFragmentViewModel @Inject constructor(
     fun saveConfig(config: Config){
         viewModelScope.launch {
             saveConfigurationUseCase.execute(config = config)
+            _savedConfig.value = config
         }
     }
 }
