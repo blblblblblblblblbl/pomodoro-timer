@@ -14,7 +14,7 @@ fun HistoryFragment(){
     val viewModel: HistoryFragmentViewModel = hiltViewModel()
     HistoryScreen(
         dayCheck = {date->
-            val rand = Random.nextInt(0,2)
+            val rand = Random.nextInt(0,3)
             when(rand){
                 0->Color.Transparent
                 1->Color.Yellow
@@ -22,6 +22,6 @@ fun HistoryFragment(){
                 else -> {Color.Transparent}
             }
         },
-        dayOnClick = {}
+        dayOnClick = {date->}
     )
 }

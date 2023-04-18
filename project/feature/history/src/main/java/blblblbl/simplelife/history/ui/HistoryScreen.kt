@@ -43,7 +43,7 @@ import java.time.YearMonth
 @Composable
 fun HistoryScreen(
     dayCheck:(LocalDate)->Color,
-    dayOnClick:()->Unit
+    dayOnClick:(LocalDate)->Unit
 ){
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(100) }
@@ -81,13 +81,11 @@ fun HistoryScreen(
             modifier = Modifier.testTag("Calendar"),
             state = state,
             dayContent = { day ->
-                Day(day, isSelected = selections.contains(day)) { clicked ->
-                    if (selections.contains(clicked)) {
-                        selections.remove(clicked)
-                    } else {
-                        selections.add(clicked)
-                    }
-                }
+                Day(
+                    day =day,
+                    dayColor = dayCheck,
+                    onClick = dayOnClick
+                )
             },
             monthHeader = {
                 MonthHeader(daysOfWeek = daysOfWeek)
@@ -108,7 +106,7 @@ private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center,
                 fontSize = 15.sp,
-                text = dayOfWeek.toString(),
+                text = dayOfWeek.toString().substring(0,3),
                 fontWeight = FontWeight.Medium,
             )
         }
@@ -117,30 +115,25 @@ private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-private fun Day(day: CalendarDay, isSelected: Boolean, onClick: (CalendarDay) -> Unit) {
+private fun Day(
+    day: CalendarDay,
+    dayColor:(LocalDate)->Color,
+    onClick: (LocalDate) -> Unit) {
+    val color = dayColor(day.date)
     Box(
         modifier = Modifier
             .aspectRatio(1f) // This is important for square-sizing!
             .testTag("MonthDay")
             .padding(6.dp)
             .clip(CircleShape)
-            .background(color = if (isSelected) Color.Blue else Color.Transparent)
-            // Disable clicks on inDates/outDates
+            .background(color = color)
             .clickable(
-                enabled = day.position == DayPosition.MonthDate,
-                showRipple = !isSelected,
-                onClick = { onClick(day) },
+                onClick = { onClick(day.date) },
             ),
         contentAlignment = Alignment.Center,
     ) {
-        val textColor = when (day.position) {
-            // Color.Unspecified will use the default text color from the current theme
-            DayPosition.MonthDate -> if (isSelected) Color.White else Color.Unspecified
-            DayPosition.InDate, DayPosition.OutDate -> Color.Red
-        }
         Text(
             text = day.date.dayOfMonth.toString(),
-            color = textColor,
             fontSize = 14.sp,
         )
     }
