@@ -71,7 +71,7 @@ fun AppScreen(startDestination: AppDestination = TimerDest){
                 }
 
             },
-            gesturesEnabled = false,
+            gesturesEnabled = true,
             drawerState = drawerState
         ) {
             AppNavHost(
