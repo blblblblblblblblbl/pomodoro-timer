@@ -88,17 +88,18 @@ class TimerFragmentViewModel @Inject constructor(
     fun goToNextStage(){
         saveDayInfo()
         if(_timerStage.value==TimerStage.WORK){
+            if (_progress.value!=null){
+                Log.d("MyLog","_progress.value:${_progress.value}")
+                Log.d("MyLog","timeTask.value:${timeTask.value}")
+                _progress.value = _progress.value!!+ (timeTask.value?.toInt() ?: 0)
+                val curProgress = timerActionsUseCase.getProgress()
+                curProgress?.let { curProgress->
+                    timerActionsUseCase.setProgress(curProgress+(timeTask.value?.toInt() ?: 0))
+                }
+            }
             timerActionsUseCase.setTimerStage(TimerStage.RELAX)
             _timerStage.value = TimerStage.RELAX
             _timeTask.value = (_timerConfiguration.value?.relaxTime?.times(1000))?.toLong()
-            if (_progress.value!=null){
-                _progress.value = _progress.value!!+1
-                val curProgress = timerActionsUseCase.getProgress()
-                curProgress?.let { curProgress->
-                    timerActionsUseCase.setProgress(curProgress+1)
-                }
-            }
-
         }
         else{
             timerActionsUseCase.setTimerStage(TimerStage.WORK)
@@ -167,7 +168,7 @@ class TimerFragmentViewModel @Inject constructor(
                 totalWorkTime = (savedDayInfo?.totalWorkTime ?: 0) +plusWorkTime!!.toLong(),
                 totalRelaxTime = (savedDayInfo?.totalRelaxTime ?: 0)+plusRelaxTime!!.toLong(),
                 progress = (savedDayInfo?.progress ?: 0)+plusWorkTime!!.toLong(),
-                goal = goal.value!!.toLong()
+                goal = goal.value!!.toLong()*1000
             )
             historyUseCase.saveDayInfo(dayInfo)
         }

@@ -57,19 +57,18 @@ fun ConfigurationScreen(
             }
         }
         Card() {
-            Row(
-                modifier = Modifier.padding(10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(30.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(text = "goal", style = MaterialTheme.typography.headlineLarge)
-                NumberPicker(
-                    value = goal,
-                    onValueChange =
-                    {
-                        goal = it
-                    },
-                    range = 0..99
+                TimePicker(
+                    initialTime = goal,
+                    onTimeChange = {time->
+                        goal = time
+                    }
                 )
             }
         }

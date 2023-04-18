@@ -287,8 +287,8 @@ fun GoalAndProgress(
     Column() {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
             Column() {
-                Text(text = "goal:$goal", style = MaterialTheme.typography.headlineLarge)
-                Text(text = "progress:$progress/$goal", style = MaterialTheme.typography.headlineLarge)
+                Text(text = "goal:${((goal?:0)*1000).toLong()?.toHhMmSs()}", style = MaterialTheme.typography.headlineLarge)
+                Text(text = "progress:${((progress?:0)).toLong()?.toHhMmSs()}", style = MaterialTheme.typography.headlineLarge)
             }
             if (showResetButton){
                 IconButton(onClick = { resetOnClick() }) {

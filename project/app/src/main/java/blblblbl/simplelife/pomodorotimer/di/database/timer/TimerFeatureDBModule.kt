@@ -1,6 +1,7 @@
 package blblblbl.simplelife.pomodorotimer.di.database.timer
 
 
+import android.util.Log
 import blblblbl.simplelife.pomodorotimer.di.database.DataBaseCreator
 import blblblbl.simplelife.pomodorotimer.di.database.history.mapToHistory
 import blblblbl.simplelife.timer.data.database.DatabaseHistory
