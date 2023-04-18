@@ -9,9 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowCircleLeft
 import androidx.compose.material.icons.filled.ArrowCircleRight
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import blblblbl.simplelife.history.domain.model.DayInfo
+import com.google.android.material.elevation.SurfaceColors
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.*
@@ -37,7 +37,7 @@ import java.time.YearMonth
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HistoryScreen(
-    dayCheck:suspend (LocalDate)->Color,
+    dayCheck:suspend (LocalDate)->DayInfo?,
     dayOnClick:(LocalDate)->Unit
 ){
     val currentMonth = remember { YearMonth.now() }
@@ -113,30 +113,42 @@ private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
 @Composable
 private fun Day(
     day: CalendarDay,
-    dayColor: suspend (LocalDate)->Color,
+    dayColor: suspend (LocalDate)->DayInfo?,
     onClick: (LocalDate) -> Unit) {
-    var color by remember {  mutableStateOf<Color>(Color.Transparent)  }
+    var dayInfo by remember {  mutableStateOf<DayInfo?>(null)  }
     SideEffect {
         CoroutineScope(Dispatchers.IO).launch {
-            color = dayColor(day.date)
+            dayInfo = dayColor(day.date)
         }
     }
-    Box(
+    val backColor =
+        if (dayInfo==null) Color.Transparent
+        else
+        {
+            if (dayInfo!!.goal> dayInfo!!.progress) MaterialTheme.colorScheme.surfaceColorAtElevation(20.dp)
+            else MaterialTheme.colorScheme.primary
+        }
+    Surface(
         modifier = Modifier
             .aspectRatio(1f) // This is important for square-sizing!
             .testTag("MonthDay")
             .padding(6.dp)
             .clip(CircleShape)
-            .background(color = color)
             .clickable(
                 onClick = { onClick(day.date) },
             ),
-        contentAlignment = Alignment.Center,
+        color = backColor
+
     ) {
-        Text(
-            text = day.date.dayOfMonth.toString(),
-            fontSize = 14.sp,
-        )
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = day.date.dayOfMonth.toString(),
+                fontSize = 14.sp,
+            )
+        }
     }
 }
 
