@@ -1,6 +1,7 @@
 package blblblbl.simplelife.history.data.database
 
-import blblblbl.simplelife.history.domain.model.DayInfo
+
+import blblblbl.simplelife.history.data.model.DayInfo
 import java.time.LocalDate
 
 interface DatabaseHistory {

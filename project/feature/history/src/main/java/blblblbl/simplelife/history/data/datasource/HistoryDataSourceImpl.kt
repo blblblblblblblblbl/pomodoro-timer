@@ -1,7 +1,7 @@
 package blblblbl.simplelife.history.data.datasource
 
 import blblblbl.simplelife.history.data.database.DatabaseHistory
-import blblblbl.simplelife.history.domain.model.DayInfo
+import blblblbl.simplelife.history.data.model.DayInfo
 import java.time.LocalDate
 import javax.inject.Inject
 

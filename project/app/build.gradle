@@ -60,6 +60,7 @@ dependencies {
     implementation project(path: ':feature:timer')
     implementation project(path: ':feature:settings')
     implementation project(path: ':feature:history')
+    implementation project(path: ':shared:database')
 
     //mvvm
     implementation("androidx.activity:activity-ktx:1.7.0")
