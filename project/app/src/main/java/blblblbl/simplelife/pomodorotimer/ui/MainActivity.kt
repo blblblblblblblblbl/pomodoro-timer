@@ -20,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import blblblbl.simplelife.configtimer.ui.ConfigurationFragment
+import blblblbl.simplelife.history.ui.HistoryFragment
 import blblblbl.simplelife.pomodorotimer.navigation.*
 import blblblbl.simplelife.pomodorotimer.presentation.MainActivityViewModel
 import blblblbl.simplelife.pomodorotimer.ui.theming.AppTheme
@@ -110,7 +111,7 @@ fun AppNavHost(
             ConfigurationFragment()
         }
         composable(route = HistoryDest.route) {
-            Text(text = "HistoryDest")
+            HistoryFragment()
         }
         composable(route = AppSettingDest.route) {
             SettingsFragment()
