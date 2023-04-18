@@ -9,6 +9,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import java.sql.Date
 import java.time.LocalDate
 
 
@@ -24,6 +25,11 @@ class TimerFeatureDBModule{
 
             override suspend fun saveDayInfo(dayInfo: DayInfo) {
                 dayInfo.mapToDB()?.let { db.historyDao().insert(dayInfo = it) }
+            }
+
+            override suspend fun getDayInfo(date: Date): DayInfo? {
+                val dayEntity = db.historyDao().getDayInfoByBin(date.toString())
+                return dayEntity.mapToTimer()
             }
 
         }

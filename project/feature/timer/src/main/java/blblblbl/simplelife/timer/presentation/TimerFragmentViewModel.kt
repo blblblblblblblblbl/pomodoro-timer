@@ -157,17 +157,18 @@ class TimerFragmentViewModel @Inject constructor(
         _progress.value = 0
     }
     private fun saveDayInfo(){
-        Log.d("MyLog","Calendar.getInstance().getTime():${Calendar.getInstance().getTime()}")
-        Log.d("MyLog","Calendar.getInstance().getTime().date:${Calendar.getInstance().getTime().date}")
         val currentDate: String = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        val dayInfo = DayInfo(
-            date = Date.valueOf(currentDate),
-            totalWorkTime = timeTask.value!!.toLong(),
-            totalRelaxTime = timeTask.value!!.toLong(),
-            progress = progress.value!!.toLong(),
-            goal = goal.value!!.toLong()
-        )
+        val plusWorkTime = if (timerStage.value==TimerStage.WORK) timeTask.value else 0
+        val plusRelaxTime = if (timerStage.value==TimerStage.RELAX) timeTask.value else 0
         viewModelScope.launch(Dispatchers.IO) {
+            val savedDayInfo = historyUseCase.getDayInfo(Date.valueOf(currentDate))
+            val dayInfo = DayInfo(
+                date = Date.valueOf(currentDate),
+                totalWorkTime = (savedDayInfo?.totalWorkTime ?: 0) +plusWorkTime!!.toLong(),
+                totalRelaxTime = (savedDayInfo?.totalRelaxTime ?: 0)+plusRelaxTime!!.toLong(),
+                progress = (savedDayInfo?.progress ?: 0)+plusWorkTime!!.toLong(),
+                goal = goal.value!!.toLong()
+            )
             historyUseCase.saveDayInfo(dayInfo)
         }
 

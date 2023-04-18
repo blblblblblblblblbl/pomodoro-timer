@@ -18,7 +18,7 @@ class DataBaseCreator@Inject constructor(
         HistoryDatabase::class.java,
         "BinDB"
     ).build()
-    init {
+    /*init {
         runBlocking {
             db.historyDao().insert(
                 DayEntity(
@@ -30,6 +30,6 @@ class DataBaseCreator@Inject constructor(
                 )
             )
         }
-    }
+    }*/
     fun getDB(): HistoryDatabase = db
 }
