@@ -13,7 +13,8 @@ import kotlin.random.Random
 fun HistoryFragment(){
     val viewModel: HistoryFragmentViewModel = hiltViewModel()
     HistoryScreen(
-        dayCheck = {date->
+        dayCheck = { date->viewModel.getDayColor(date) }
+        /*{date->
             val rand = Random.nextInt(0,3)
             when(rand){
                 0->Color.Transparent
@@ -21,7 +22,7 @@ fun HistoryFragment(){
                 2->Color.Green
                 else -> {Color.Transparent}
             }
-        },
+        }*/,
         dayOnClick = {date->}
     )
 }

@@ -12,10 +12,7 @@ import androidx.compose.material.icons.filled.ArrowCircleLeft
 import androidx.compose.material.icons.filled.ArrowCircleRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +31,8 @@ import androidx.compose.ui.unit.sp
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -42,7 +41,7 @@ import java.time.YearMonth
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HistoryScreen(
-    dayCheck:(LocalDate)->Color,
+    dayCheck:suspend (LocalDate)->Color,
     dayOnClick:(LocalDate)->Unit
 ){
     val currentMonth = remember { YearMonth.now() }
@@ -117,9 +116,14 @@ private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
 @Composable
 private fun Day(
     day: CalendarDay,
-    dayColor:(LocalDate)->Color,
+    dayColor: suspend (LocalDate)->Color,
     onClick: (LocalDate) -> Unit) {
-    val color = dayColor(day.date)
+    var color by remember {  mutableStateOf<Color>(Color.Transparent)  }
+    SideEffect {
+        CoroutineScope(Dispatchers.IO).launch {
+            color = dayColor(day.date)
+        }
+    }
     Box(
         modifier = Modifier
             .aspectRatio(1f) // This is important for square-sizing!
