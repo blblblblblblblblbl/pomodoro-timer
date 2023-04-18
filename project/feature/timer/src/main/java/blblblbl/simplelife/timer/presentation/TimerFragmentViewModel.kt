@@ -4,22 +4,29 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import blblblbl.simplelife.timer.domain.model.Config
+import blblblbl.simplelife.timer.domain.model.DayInfo
 import blblblbl.simplelife.timer.domain.model.TimerStage
 import blblblbl.simplelife.timer.domain.model.TimerState
 import blblblbl.simplelife.timer.domain.usecase.GetConfigurationUseCase
+import blblblbl.simplelife.timer.domain.usecase.HistoryUseCase
 import blblblbl.simplelife.timer.domain.usecase.TimerActionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.sql.Date
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class TimerFragmentViewModel @Inject constructor(
     private val getConfigurationUseCase: GetConfigurationUseCase,
-    private val timerActionsUseCase: TimerActionsUseCase
+    private val timerActionsUseCase: TimerActionsUseCase,
+    private val historyUseCase: HistoryUseCase
 ) :ViewModel() {
     private val _timerConfiguration = MutableStateFlow<Config?>(null)
     val timerConfiguration = _timerConfiguration.asStateFlow()
@@ -79,18 +86,20 @@ class TimerFragmentViewModel @Inject constructor(
         timerActionsUseCase.setTimerStage(timerStage)
     }
     fun goToNextStage(){
+        saveDayInfo()
         if(_timerStage.value==TimerStage.WORK){
+            if (_progress.value!=null){
+                Log.d("MyLog","_progress.value:${_progress.value}")
+                Log.d("MyLog","timeTask.value:${timeTask.value}")
+                _progress.value = _progress.value!!+ (timeTask.value?.toInt() ?: 0)
+                val curProgress = timerActionsUseCase.getProgress()
+                curProgress?.let { curProgress->
+                    timerActionsUseCase.setProgress(curProgress+(timeTask.value?.toInt() ?: 0))
+                }
+            }
             timerActionsUseCase.setTimerStage(TimerStage.RELAX)
             _timerStage.value = TimerStage.RELAX
             _timeTask.value = (_timerConfiguration.value?.relaxTime?.times(1000))?.toLong()
-            if (_progress.value!=null){
-                _progress.value = _progress.value!!+1
-                val curProgress = timerActionsUseCase.getProgress()
-                curProgress?.let { curProgress->
-                    timerActionsUseCase.setProgress(curProgress+1)
-                }
-            }
-
         }
         else{
             timerActionsUseCase.setTimerStage(TimerStage.WORK)
@@ -147,5 +156,22 @@ class TimerFragmentViewModel @Inject constructor(
     fun resetProgress(){
         timerActionsUseCase.setProgress(0)
         _progress.value = 0
+    }
+    private fun saveDayInfo(){
+        val currentDate: String = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val plusWorkTime = if (timerStage.value==TimerStage.WORK) timeTask.value else 0
+        val plusRelaxTime = if (timerStage.value==TimerStage.RELAX) timeTask.value else 0
+        viewModelScope.launch(Dispatchers.IO) {
+            val savedDayInfo = historyUseCase.getDayInfo(Date.valueOf(currentDate))
+            val dayInfo = DayInfo(
+                date = Date.valueOf(currentDate),
+                totalWorkTime = (savedDayInfo?.totalWorkTime ?: 0) +plusWorkTime!!.toLong(),
+                totalRelaxTime = (savedDayInfo?.totalRelaxTime ?: 0)+plusRelaxTime!!.toLong(),
+                progress = (savedDayInfo?.progress ?: 0)+plusWorkTime!!.toLong(),
+                goal = goal.value!!.toLong()*1000
+            )
+            historyUseCase.saveDayInfo(dayInfo)
+        }
+
     }
 }
