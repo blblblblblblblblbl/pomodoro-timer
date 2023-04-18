@@ -18,18 +18,18 @@ class DataBaseCreator@Inject constructor(
         HistoryDatabase::class.java,
         "BinDB"
     ).build()
-    /*init {
+    init {
         runBlocking {
             db.historyDao().insert(
                 DayEntity(
                     "2023-04-18",
-                    totalRelaxTime = 500,
-                    totalWorkTime = 500,
-                    goal = 500,
-                    progress = 600
+                    totalRelaxTime = 50000000,
+                    totalWorkTime = 50000000,
+                    goal = 50000000,
+                    progress = 50000000
                 )
             )
         }
-    }*/
+    }
     fun getDB(): HistoryDatabase = db
 }

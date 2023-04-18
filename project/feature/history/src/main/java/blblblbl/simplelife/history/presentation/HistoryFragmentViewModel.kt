@@ -14,12 +14,7 @@ import javax.inject.Inject
 class HistoryFragmentViewModel @Inject constructor(
     private val dayInfoUseCase: DayInfoUseCase
 ): ViewModel() {
-    /*fun getDayColor(date: LocalDate):Color{
-        viewModelScope.launch(Dispatchers.IO) {
-            val info = dayInfoUseCase.getInfo(date)
-            if (info==null) return Color.Transparent
-        }
-    }*/
+
     suspend fun getDayColor(date: LocalDate):Color{
         val info = dayInfoUseCase.getInfo(date)
         if (info==null) return Color.Transparent

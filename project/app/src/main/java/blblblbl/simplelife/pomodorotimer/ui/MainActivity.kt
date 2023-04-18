@@ -6,8 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.ModalDrawer
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -20,8 +18,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import blblblbl.simplelife.configtimer.ui.ConfigurationFragment
-import blblblbl.simplelife.history.ui.HistoryFragment
 import blblblbl.simplelife.pomodorotimer.navigation.*
+import blblblbl.simplelife.pomodorotimer.navigation.graphs.historyGraph
 import blblblbl.simplelife.pomodorotimer.presentation.MainActivityViewModel
 import blblblbl.simplelife.pomodorotimer.ui.theming.AppTheme
 import blblblbl.simplelife.settings.ui.SettingsFragment
@@ -110,9 +108,7 @@ fun AppNavHost(
         composable(route = ConfigTimerDest.route) {
             ConfigurationFragment()
         }
-        composable(route = HistoryDest.route) {
-            HistoryFragment()
-        }
+        historyGraph(navController)
         composable(route = AppSettingDest.route) {
             SettingsFragment()
         }
