@@ -4,22 +4,29 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import blblblbl.simplelife.timer.domain.model.Config
+import blblblbl.simplelife.timer.domain.model.DayInfo
 import blblblbl.simplelife.timer.domain.model.TimerStage
 import blblblbl.simplelife.timer.domain.model.TimerState
 import blblblbl.simplelife.timer.domain.usecase.GetConfigurationUseCase
+import blblblbl.simplelife.timer.domain.usecase.HistoryUseCase
 import blblblbl.simplelife.timer.domain.usecase.TimerActionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.sql.Date
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class TimerFragmentViewModel @Inject constructor(
     private val getConfigurationUseCase: GetConfigurationUseCase,
-    private val timerActionsUseCase: TimerActionsUseCase
+    private val timerActionsUseCase: TimerActionsUseCase,
+    private val historyUseCase: HistoryUseCase
 ) :ViewModel() {
     private val _timerConfiguration = MutableStateFlow<Config?>(null)
     val timerConfiguration = _timerConfiguration.asStateFlow()
@@ -79,6 +86,7 @@ class TimerFragmentViewModel @Inject constructor(
         timerActionsUseCase.setTimerStage(timerStage)
     }
     fun goToNextStage(){
+        saveDayInfo()
         if(_timerStage.value==TimerStage.WORK){
             timerActionsUseCase.setTimerStage(TimerStage.RELAX)
             _timerStage.value = TimerStage.RELAX
@@ -147,5 +155,21 @@ class TimerFragmentViewModel @Inject constructor(
     fun resetProgress(){
         timerActionsUseCase.setProgress(0)
         _progress.value = 0
+    }
+    private fun saveDayInfo(){
+        Log.d("MyLog","Calendar.getInstance().getTime():${Calendar.getInstance().getTime()}")
+        Log.d("MyLog","Calendar.getInstance().getTime().date:${Calendar.getInstance().getTime().date}")
+        val currentDate: String = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val dayInfo = DayInfo(
+            date = Date.valueOf(currentDate),
+            totalWorkTime = timeTask.value!!.toLong(),
+            totalRelaxTime = timeTask.value!!.toLong(),
+            progress = progress.value!!.toLong(),
+            goal = goal.value!!.toLong()
+        )
+        viewModelScope.launch(Dispatchers.IO) {
+            historyUseCase.saveDayInfo(dayInfo)
+        }
+
     }
 }
