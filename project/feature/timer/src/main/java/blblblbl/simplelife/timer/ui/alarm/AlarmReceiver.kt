@@ -4,37 +4,95 @@ import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
+import android.os.Vibrator
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import blblblbl.simplelife.settings.domain.repository.SettingsRepository
 import blblblbl.simplelife.timer.R
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AlarmReceiver: BroadcastReceiver() {
-
+@AndroidEntryPoint
+class AlarmReceiver : BroadcastReceiver() {
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
+    val mp = MediaPlayer()
     override fun onReceive(context: Context?, intent: Intent?) {
-        val message = intent?.getStringExtra("EXTRA_MESSAGE") ?: return
+        Log.d("MyLog","mp.hash${mp.hashCode()}")
+        val kind = intent?.getStringExtra(KIND_KEY) ?: return
+        when(kind){
+            KIND_PLAY_ALARM->{
+                play(context,intent)
+            }
+            KIND_OFF_ALARM->{
+                stopAlarm()
+            }
+        }
+
+    }
+    private fun play(context: Context?, intent: Intent?){
+        Log.d("MyLog","mp.hash${mp.hashCode()}")
+        val message = intent?.getStringExtra(ALARM_TEXT_KEY) ?: return
+        val sound = settingsRepository.getConfig()?.alarmRingtone
         Log.d("MyLog","Alarm triggered: $message")
         println("Alarm triggered: $message")
         if (context != null) {
+            mp.apply {
+                reset()
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
+                )
+                setDataSource(context, Uri.parse(sound))
+                prepare()
+                start()
+            }
             makeStatusNotification(message,context)
+            val vib: Vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            vib.vibrate(10000)
         }
     }
+    private fun stopAlarm(){
+        Log.d("MyLog","mp.hash${mp.hashCode()}")
+        if (mp.isPlaying) mp.pause()
+    }
     fun makeStatusNotification(message: String, context: Context) {
-
         makeChannel(context)
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
+            putExtra(KIND_KEY, KIND_OFF_ALARM)
+        }
+        val flag =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                PendingIntent.FLAG_IMMUTABLE
+            else
+                0
+        val stopIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            flag
+        )
         // Create the notification
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(androidx.core.R.drawable.ic_call_answer)
+            .setSmallIcon(R.drawable.baseline_timer_24)
             .setSound(Uri.parse("android.resource://"+context.packageName +"/raw/ringtone"))
             .setContentTitle(NOTIFICATION_TITLE)
             .setContentText(message)
+            .addAction(R.drawable.baseline_alarm_off_24,"STOP",stopIntent)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setVibrate(LongArray(0))
@@ -77,6 +135,12 @@ class AlarmReceiver: BroadcastReceiver() {
 
             notificationManager?.createNotificationChannel(channel)
         }
+    }
+    companion object{
+        const val KIND_KEY = "KIND"
+        const val KIND_PLAY_ALARM = "KIND_PLAY"
+        const val ALARM_TEXT_KEY = "ALARM_TEXT"
+        const val KIND_OFF_ALARM = "KIND_OFF_ALARM"
     }
 }
 @JvmField val VERBOSE_NOTIFICATION_CHANNEL_NAME: CharSequence = "Verbose WorkManager Notificationsa"
