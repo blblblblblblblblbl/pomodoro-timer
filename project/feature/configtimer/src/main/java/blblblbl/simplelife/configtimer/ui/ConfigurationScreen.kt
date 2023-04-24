@@ -1,5 +1,6 @@
 package blblblbl.simplelife.configtimer.ui
 
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -8,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import blblblbl.simplelife.configtimer.domain.model.Config
-import com.chargemap.compose.numberpicker.NumberPicker
 
 @Composable
 fun ConfigurationScreen(
@@ -167,3 +167,4 @@ fun ConfigurationScreenPreview(){
         }
     }
 }
+
