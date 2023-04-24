@@ -25,6 +25,7 @@ import androidx.work.WorkRequest
 import blblblbl.simplelife.settings.domain.repository.SettingsRepository
 import blblblbl.simplelife.timer.R
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,9 +33,8 @@ import javax.inject.Singleton
 class AlarmReceiver : BroadcastReceiver() {
     @Inject
     lateinit var settingsRepository: SettingsRepository
-    val mp = MediaPlayer()
+
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d("MyLog","mp.hash${mp.hashCode()}")
         val kind = intent?.getStringExtra(KIND_KEY) ?: return
         when(kind){
             KIND_PLAY_ALARM->{
@@ -44,6 +44,7 @@ class AlarmReceiver : BroadcastReceiver() {
                         Data.Builder()
                             .putString(ALARM_TEXT_KEY,message)
                             .build())
+                    .addTag(AlarmWorker.ALARM_WORKER_TAG)
                     .build()
                 if (context != null) {
                     WorkManager
@@ -53,14 +54,17 @@ class AlarmReceiver : BroadcastReceiver() {
                 Log.d("MyLog","equeue(alarmWorkRequest)")
             }
             KIND_OFF_ALARM->{
-                stopAlarm()
+                context?.let { context ->
+                    stopAlarm(context)
+                }
+
             }
         }
 
     }
-    private fun stopAlarm(){
-        Log.d("MyLog","mp.hash${mp.hashCode()}")
-        if (mp.isPlaying) mp.pause()
+    private fun stopAlarm(context: Context){
+        WorkManager.getInstance(context).cancelAllWorkByTag(AlarmWorker.ALARM_WORKER_TAG)
+        Log.d("MyLog"," AlarmReceiver stopAlarm")
     }
 
     companion object{

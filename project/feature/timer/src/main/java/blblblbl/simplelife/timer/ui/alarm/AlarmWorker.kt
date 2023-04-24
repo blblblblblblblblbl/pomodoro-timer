@@ -24,6 +24,8 @@ import blblblbl.simplelife.settings.domain.repository.SettingsRepository
 import blblblbl.simplelife.timer.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltWorker
@@ -39,7 +41,11 @@ class AlarmWorker@AssistedInject constructor(
     override fun doWork(): Result {
         Log.d("MyLog","AlarmWorker:doWork")
         return try {
-            play(context)
+            runBlocking {
+                play(context)
+                delay(20000)
+            }
+            stopAlarm()
             Result.success()
         }
         catch (e:Throwable){
@@ -47,9 +53,20 @@ class AlarmWorker@AssistedInject constructor(
             Result.failure()
         }
     }
+
+    override fun onStopped() {
+        stopAlarm()
+        super.onStopped()
+    }
+    private fun stopAlarm(){
+        if (mp.isPlaying) {
+            mp.stop()
+        }
+        NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID)
+    }
     private fun play(context: Context?){
         val message = inputData.getString(AlarmReceiver.ALARM_TEXT_KEY) ?: return
-        val sound = "android.resource://"+"blblblbl.simplelife.pomodorotimer"+"/raw/ringtone1"//settingsRepository.getConfig()?.alarmRingtone
+        val sound = "android.resource://"+"blblblbl.simplelife.pomodorotimer"+"/raw/ringtone3"//settingsRepository.getConfig()?.alarmRingtone
         if (context != null) {
             Log.d("MyLog", "worker alarm play")
             mp.apply {
@@ -62,6 +79,7 @@ class AlarmWorker@AssistedInject constructor(
                 )
                 setDataSource(context, Uri.parse(sound))
                 prepare()
+                isLooping = true
                 start()
             }
             makeStatusNotification(message,context)
@@ -93,6 +111,7 @@ class AlarmWorker@AssistedInject constructor(
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setVibrate(LongArray(0))
+            .setOngoing(true)
 
         // Show the notification
         if (ActivityCompat.checkSelfPermission(
@@ -132,6 +151,9 @@ class AlarmWorker@AssistedInject constructor(
 
             notificationManager?.createNotificationChannel(channel)
         }
+    }
+    companion object{
+        const val ALARM_WORKER_TAG = "pomodoroalarmworkersound"
     }
 }
 @JvmField val VERBOSE_NOTIFICATION_CHANNEL_NAME: CharSequence = "Verbose WorkManager Notificationsa"
