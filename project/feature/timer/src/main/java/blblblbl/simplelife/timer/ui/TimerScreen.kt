@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,9 +32,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import blblblbl.simplelife.timer.domain.model.TimerStage
 import blblblbl.simplelife.timer.domain.model.TimerState
 import blblblbl.simplelife.timer.ui.alarm.AlarmItem
+import blblblbl.simplelife.timer.ui.alarm.AlarmReceiver
+import blblblbl.simplelife.timer.ui.alarm.AlarmWorker
 import blblblbl.simplelife.timer.ui.util.toHhMmSs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -70,6 +77,7 @@ fun TimerScreen(
         val timeTask by timeTaskFlow.collectAsState()
         val state by stateFlow.collectAsState()
         val stage by stageFlow.collectAsState()
+
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier.fillMaxWidth(),

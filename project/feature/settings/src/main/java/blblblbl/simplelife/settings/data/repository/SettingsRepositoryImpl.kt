@@ -25,7 +25,11 @@ class SettingsRepositoryImpl @Inject constructor(
 
 
     override fun getConfig(): AppConfiguration? {
-        val configuration = settingsPersistentStorage.getConfig()?.mapToDomain()?:AppConfiguration(null,ThemeMode.AUTO,null,false)
+        val configuration = settingsPersistentStorage.getConfig()?.mapToDomain()?:AppConfiguration(
+            null,
+            ThemeMode.AUTO,
+            "android.resource://"+"blblblbl.simplelife.pomodorotimer"+"/raw/ringtone1",
+            false)
         return configuration
     }
 }

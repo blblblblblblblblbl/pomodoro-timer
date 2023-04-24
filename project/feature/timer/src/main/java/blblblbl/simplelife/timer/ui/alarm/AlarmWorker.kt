@@ -29,13 +29,11 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltWorker
-class AlarmWorker@AssistedInject constructor(
+class AlarmWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted params: WorkerParameters,
-    //private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository
     ) : Worker(context, params) {
-   /* @Inject
-    lateinit var settingsRepository: SettingsRepository*/
     val mp = MediaPlayer()
 
     override fun doWork(): Result {
@@ -66,8 +64,8 @@ class AlarmWorker@AssistedInject constructor(
     }
     private fun play(context: Context?){
         val message = inputData.getString(AlarmReceiver.ALARM_TEXT_KEY) ?: return
-        val sound = "android.resource://"+"blblblbl.simplelife.pomodorotimer"+"/raw/ringtone3"//settingsRepository.getConfig()?.alarmRingtone
-        if (context != null) {
+        val sound = settingsRepository.getConfig()?.alarmRingtone
+        if (context != null && sound!=null) {
             Log.d("MyLog", "worker alarm play")
             mp.apply {
                 reset()
@@ -104,7 +102,6 @@ class AlarmWorker@AssistedInject constructor(
         // Create the notification
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.baseline_timer_24)
-            .setSound(Uri.parse("android.resource://"+context.packageName +"/raw/ringtone"))
             .setContentTitle(NOTIFICATION_TITLE)
             .setContentText(message)
             .addAction(R.drawable.baseline_alarm_off_24,"STOP",stopIntent)
