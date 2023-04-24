@@ -12,6 +12,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PomodoroTimer"
         tools:targetApi="31">
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove">
+        </provider>
         <activity
             android:name=".ui.MainActivity"
             android:exported="true">
@@ -21,7 +26,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name="blblblbl.simplelife.timer.ui.alarm.AlarmReceiver" />
+        <receiver android:name="blblblbl.simplelife.timer.ui.alarm.AlarmReceiver"/>
+
     </application>
 
 </manifest>
