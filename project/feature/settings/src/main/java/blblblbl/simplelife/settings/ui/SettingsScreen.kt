@@ -101,7 +101,7 @@ fun AlarmPicker(
         val alarms = mutableListOf<String>()
         var pickedAlarm by remember { mutableStateOf(initialAlarm)}
         var mpIsPLaying by remember { mutableStateOf(mediaPlayer.isPlaying) }
-        for (i in 1..3) {
+        for (i in 1..6) {
             alarms.add("android.resource://"+"blblblbl.simplelife.pomodorotimer"+"/raw/ringtone$i")
             //also possible variant
             //val pkgName: String = context.getPackageName()//blblblbl.simplelife.pomodorotimer
@@ -147,28 +147,29 @@ fun AlarmPicker(
                         Text(text = alarmName)
                     }
                 }
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (mpIsPLaying){
-                    IconButton(onClick = {
-                        mediaPlayer.pause()
-                        mpIsPLaying = false
-                    }) {
-                        Icon(Icons.Default.Pause, contentDescription = "stop alarm")
-                    }
-                }
-                if ((pickedAlarm!=null) && (pickedAlarm!=initialAlarm)){
-                    Button(onClick = {
-                        setAlarm(pickedAlarm!!)
-                        initialAlarm = pickedAlarm
-                    }
-                    ) {
-                        Text(text = "set alarm")
+                item {
+                    Row(modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                        if (mpIsPLaying){
+                            IconButton(onClick = {
+                                mediaPlayer.pause()
+                                mpIsPLaying = false
+                            }) {
+                                Icon(Icons.Default.Pause, contentDescription = "stop alarm")
+                            }
+                        }
+                        if ((pickedAlarm!=null) && (pickedAlarm!=initialAlarm)){
+                            Button(onClick = {
+                                setAlarm(pickedAlarm!!)
+                                initialAlarm = pickedAlarm
+                            }
+                            ) {
+                                Text(text = "set alarm")
+                            }
+                        }
                     }
                 }
             }
         }
-
     }
 }
 
