@@ -131,7 +131,7 @@ fun TimerScreen(
             }
         }
         else if (state==TimerState.PAUSE){
-            Row() {
+            Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 Button(onClick = {
                     resumeOnCLick()
                 }) {
