@@ -13,6 +13,7 @@ import blblblbl.simplelife.configtimer.presentation.ConfigurationFragmentViewMod
 
 @Composable
 fun ConfigurationFragment(
+    saveOnClick:()->Unit
 ) {
     val viewModel: ConfigurationFragmentViewModel = hiltViewModel()
     val context = LocalContext.current
@@ -26,6 +27,7 @@ fun ConfigurationFragment(
         saveOnCLick = { config ->
             if (!(config.workTime == 0 || config.relaxTime == 0 || config.goal == 0)) {
                 viewModel.saveConfig(config)
+                saveOnClick()
                 Toast.makeText(context,"parameters saved",Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(context, "parameter can't be 0", Toast.LENGTH_SHORT).show()

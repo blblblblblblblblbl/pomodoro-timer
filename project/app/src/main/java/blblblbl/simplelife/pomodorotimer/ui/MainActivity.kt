@@ -128,7 +128,9 @@ fun AppNavHost(
             menuOnClick = openMenu)
         }
         composable(route = ConfigTimerDest.route) {
-            ConfigurationFragment()
+            ConfigurationFragment(
+                saveOnClick = { navController.navigateSingleTopTo(TimerDest.route) }
+            )
         }
         historyGraph(navController)
         composable(route = AppSettingDest.route) {
