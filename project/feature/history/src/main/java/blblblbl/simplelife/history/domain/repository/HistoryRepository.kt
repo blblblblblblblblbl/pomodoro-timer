@@ -5,4 +5,5 @@ import java.time.LocalDate
 
 interface HistoryRepository {
     suspend fun getDayInfo(date: LocalDate):DayInfo?
+    suspend fun saveDayInfo(dayInfo: DayInfo)
 }

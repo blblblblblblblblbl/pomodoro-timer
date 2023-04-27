@@ -122,7 +122,7 @@ private fun Day(
         }
     }
     val backColor =
-        if (dayInfo==null) Color.Transparent
+        if (dayInfo==null||(dayInfo!=null &&(dayInfo!!.progress.toInt()==0))) Color.Transparent
         else
         {
             if (dayInfo!!.goal> dayInfo!!.progress) MaterialTheme.colorScheme.surfaceColorAtElevation(20.dp)

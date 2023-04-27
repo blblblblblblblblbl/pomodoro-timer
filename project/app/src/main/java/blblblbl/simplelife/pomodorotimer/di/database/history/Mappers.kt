@@ -18,3 +18,18 @@ fun DBDay?.mapToHistory():HistoryDay?{
         return historyDay
     }
 }
+
+fun HistoryDay?.mapToDB():DBDay?{
+    if (this==null) return null
+    else{
+        val dBDay: DBDay =
+            blblblbl.simplelife.database.model.DayEntity(
+                date = this.date.toString(),
+                totalWorkTime = this.totalWorkTime,
+                totalRelaxTime = this.totalRelaxTime,
+                goal = this.goal,
+                progress = this.progress
+            )
+        return dBDay
+    }
+}

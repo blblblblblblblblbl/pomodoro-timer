@@ -10,4 +10,7 @@ class HistoryDataSourceImpl @Inject constructor(
 ):HistoryDataSource {
     override suspend fun getDayInfo(date: LocalDate): DayInfo? =
         databaseHistory.getDayInfo(date)
+
+    override suspend fun saveDayInfo(dayInfo: DayInfo) =
+        databaseHistory.saveDayInfo(dayInfo)
 }
