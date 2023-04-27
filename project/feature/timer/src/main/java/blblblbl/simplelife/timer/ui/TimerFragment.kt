@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.CountDownTimer
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
@@ -66,7 +67,10 @@ fun TimerFragment(
                 viewModel.pauseTimer()
                 alarm.cancel()
             },
-            resumeOnCLick = { viewModel.resumeTimer() },
+            resumeOnCLick = {
+                viewModel.resumeTimer()
+                alarm.schedule(AlarmItem(LocalDateTime.now().plusSeconds((viewModel.time.value!!)/1000),"timer"))
+                            },
             settingsOnClick = {onSettingsClicked()},
             nextStageOnCLick = {viewModel.goToNextStage()},
             resetProgressOnclick = {viewModel.resetProgress()},
