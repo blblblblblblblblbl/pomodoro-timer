@@ -24,7 +24,9 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import blblblbl.simplelife.settings.domain.repository.SettingsRepository
 import blblblbl.simplelife.timer.R
+import blblblbl.simplelife.timer.presentation.TimerFragmentViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,7 +35,8 @@ import javax.inject.Singleton
 class AlarmReceiver : BroadcastReceiver() {
     @Inject
     lateinit var settingsRepository: SettingsRepository
-
+    @Inject
+    lateinit var alarmAutoNextStage: AlarmAutoNextStage
     override fun onReceive(context: Context?, intent: Intent?) {
         val kind = intent?.getStringExtra(KIND_KEY) ?: return
         when(kind){
@@ -51,7 +54,17 @@ class AlarmReceiver : BroadcastReceiver() {
                         .getInstance(context)
                         .enqueue(alarmWorkRequest)
                 }
-                Log.d("MyLog","equeue(alarmWorkRequest)")
+                Log.d("MyLog","enqueue(alarmWorkRequest)")
+                val config = settingsRepository.getConfig()
+                config?.isAutomaticNextStage?.let { auto->
+                    if (auto){
+                        alarmAutoNextStage.goToNextStage()
+                        context?.let { context ->
+                            alarmAutoNextStage.startTimer(context)
+                        }
+
+                    }
+                }
             }
             KIND_OFF_ALARM->{
                 context?.let { context ->

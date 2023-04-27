@@ -66,14 +66,14 @@ fun SettingsScreen(
                 }
             }
         )
-        NextStagePicker(
+        /*NextStagePicker(
             initial = config?.isAutomaticNextStage?:false,
             setState = {bool->
                 config?.let { config->
                     saveConfig(config.copy(isAutomaticNextStage = bool))
                 }
             }
-        )
+        )*/
     }
 }
 
