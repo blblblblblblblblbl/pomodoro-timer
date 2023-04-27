@@ -2,6 +2,7 @@ package blblblbl.simplelife.history.data.repository
 
 import android.util.Log
 import blblblbl.simplelife.history.data.datasource.HistoryDataSource
+import blblblbl.simplelife.history.data.utils.mapToData
 import blblblbl.simplelife.history.data.utils.mapToDomain
 import blblblbl.simplelife.history.domain.model.DayInfo
 import blblblbl.simplelife.history.domain.repository.HistoryRepository
@@ -15,6 +16,9 @@ class HistoryRepositoryImpl @Inject constructor(
 ):HistoryRepository {
     override suspend fun getDayInfo(date: LocalDate): DayInfo? =
         historyDataSource.getDayInfo(date)?.mapToDomain()
+
+    override suspend fun saveDayInfo(dayInfo: DayInfo) =
+        historyDataSource.saveDayInfo(dayInfo.mapToData())
     /*override suspend fun getDayInfo(date: LocalDate): DayInfo? {
         Log.d("MyLog","date:${date.toString()}")
         //date.toString()=2023-04-07 year/month/day

@@ -13,7 +13,12 @@ fun DetailedDayFragment(date: LocalDate){
     viewModel.getDayInfo(date)
     val dayInfo by viewModel.dayInfo.collectAsState()
     dayInfo?.let { dayInfo ->
-        DetailedDayScreen(dayInfo = dayInfo)
+        DetailedDayScreen(
+            dayInfo = dayInfo,
+            editDayInfo = {dayInfo ->
+                viewModel.saveDayInfo(dayInfo)
+            }
+        )
     }
 
 }

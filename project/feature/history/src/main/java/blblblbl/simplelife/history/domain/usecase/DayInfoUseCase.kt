@@ -10,4 +10,7 @@ class DayInfoUseCase @Inject constructor(
 ) {
     suspend fun getInfo(date: LocalDate):DayInfo? =
         repository.getDayInfo(date)
+
+    suspend fun saveDayInfo(dayInfo: DayInfo) =
+        repository.saveDayInfo(dayInfo)
 }

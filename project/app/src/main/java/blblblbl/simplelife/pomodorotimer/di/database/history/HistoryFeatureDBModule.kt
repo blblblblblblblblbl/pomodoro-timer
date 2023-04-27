@@ -6,6 +6,7 @@ import androidx.paging.PagingData
 import blblblbl.simplelife.history.data.database.DatabaseHistory
 import blblblbl.simplelife.history.data.model.DayInfo
 import blblblbl.simplelife.pomodorotimer.di.database.DataBaseCreator
+import blblblbl.simplelife.pomodorotimer.di.database.timer.mapToDB
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,6 +24,9 @@ class HistoryFeatureDBModule{
     fun provideSearchDB(dbCreator: DataBaseCreator): DatabaseHistory =
         object : DatabaseHistory {
             val db = dbCreator.getDB()
+            override suspend fun saveDayInfo(dayInfo: DayInfo) {
+                dayInfo.mapToDB()?.let { db.historyDao().insert(dayInfo = it) }
+            }
 
 
             override suspend fun getDayInfo(date: LocalDate): DayInfo? {

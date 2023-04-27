@@ -33,4 +33,10 @@ class DetailedDayFragmentViewModel @Inject constructor(
             )
         }
     }
+    fun saveDayInfo(dayInfo: DayInfo){
+        _dayInfo.value = dayInfo
+        viewModelScope.launch(Dispatchers.IO){
+            dayInfoUseCase.saveDayInfo(dayInfo)
+        }
+    }
 }
