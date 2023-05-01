@@ -15,7 +15,6 @@ dependencyResolutionManagement {
 rootProject.name = "pomodoro timer"
 include ':app'
 include ':feature'
-include ':feature:configuration'
 include ':feature:settings'
 include ':feature:history'
 include ':feature:timer'

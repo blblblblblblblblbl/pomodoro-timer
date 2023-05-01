@@ -36,7 +36,9 @@ fun TimerFragment(
     menuOnClick: ()->Unit
 ) {
     val viewModel: TimerFragmentViewModel = hiltViewModel()
-    viewModel.getConfig()
+    SideEffect {
+        viewModel.getConfig()
+    }
     val config by viewModel.timerConfiguration.collectAsState()
     val context = LocalContext.current
     val alarm = AndroidAlarmScheduler(context)
@@ -54,6 +56,7 @@ fun TimerFragment(
                     Toast.makeText(context,"first configure timer, tap on configure button",Toast.LENGTH_SHORT).show()
                 }
                 else{
+                    Toast.makeText(context,"${config!!.goal}",Toast.LENGTH_SHORT).show()
                     viewModel.timeTask.value?.let {
                         viewModel.startTimer()
                         alarm.schedule(AlarmItem(LocalDateTime.now().plusSeconds(it/1000),"timer"))

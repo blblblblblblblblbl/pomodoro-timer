@@ -10,6 +10,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import blblblbl.simplelife.configtimer.domain.model.Config
 import blblblbl.simplelife.configtimer.presentation.ConfigurationFragmentViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun ConfigurationFragment(
@@ -17,6 +20,7 @@ fun ConfigurationFragment(
 ) {
     val viewModel: ConfigurationFragmentViewModel = hiltViewModel()
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     viewModel.getConfig()
     val config by viewModel.savedConfig.collectAsState()
     ConfigurationScreen(
@@ -26,8 +30,11 @@ fun ConfigurationFragment(
         initialConfiguration = config ?: Config(0, 0, 0),
         saveOnCLick = { config ->
             if (!(config.workTime == 0 || config.relaxTime == 0 || config.goal == 0)) {
-                viewModel.saveConfig(config)
-                saveOnClick()
+                coroutineScope.launch{
+                    val job = viewModel.saveConfig(config)
+                    job.join()
+                    saveOnClick()
+                }
                 Toast.makeText(context,"parameters saved",Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(context, "parameter can't be 0", Toast.LENGTH_SHORT).show()

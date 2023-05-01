@@ -20,7 +20,7 @@ class SharedPrefsModule(
         context.getSharedPreferences(STORAGE_NAME, Context.MODE_PRIVATE)
 
     companion object {
-        const val STORAGE_NAME = "StorageName"
+        const val STORAGE_NAME = "StoragePomodoroTimer"
     }
 
 }

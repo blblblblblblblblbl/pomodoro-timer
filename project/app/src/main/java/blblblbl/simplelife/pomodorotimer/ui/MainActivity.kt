@@ -56,7 +56,8 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 AppScreen(
-                    startDestination = if ((this::showOnBoarding.isInitialized)&&!showOnBoarding.IsShown()) OnBoardingDest else TimerDest,
+                    startDestination = TimerDest,
+                    showOnBoarding = (this::showOnBoarding.isInitialized)&&!showOnBoarding.IsShown(),
                     onBoardingOnClick= {showOnBoarding.saveShown()}
 
                 )
@@ -69,6 +70,7 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun AppScreen(
     startDestination: AppDestination = TimerDest,
+    showOnBoarding: Boolean = false,
     onBoardingOnClick:()->Unit = {}
 ){
     val navController = rememberNavController()
@@ -101,6 +103,7 @@ fun AppScreen(
                         drawerState.open()
                     }
                 },
+                showOnBoarding = showOnBoarding,
                 onBoardingOnClick = onBoardingOnClick
             )
         }
@@ -114,6 +117,7 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     startDestination:AppDestination = TimerDest,
     openMenu: ()->Unit,
+    showOnBoarding: Boolean = false,
     onBoardingOnClick:()->Unit = {}
 ) {
     NavHost(
